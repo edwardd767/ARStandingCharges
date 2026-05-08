@@ -1,0 +1,3238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HotelX Monthly Invoice Mockup</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Arial, Helvetica, sans-serif; background:#f3f3f3; color:#222; }
+    .topbar {
+      height:64px; background:#fff; display:flex; align-items:center; padding:0 18px;
+      box-shadow:0 2px 10px rgba(0,0,0,.08); position:fixed; top:0; left:0; right:0; z-index:50;
+    }
+    .hamburger { font-size:30px; margin-right:16px; cursor:pointer; }
+    .brand { font-size:24px; font-weight:700; }
+    .layout { display:flex; min-height:100vh; padding-top:64px; }
+    .sidebar {
+      width:255px; background:#fff; box-shadow:2px 0 8px rgba(0,0,0,.04); padding:12px 0;
+      position:fixed; top:64px; left:0; bottom:0; overflow-y:auto; z-index:30;
+    }
+    .nav-item { padding:14px 18px; display:flex; align-items:center; gap:10px; color:#222; cursor:pointer; }
+
+    .nav-item.not-applicable {
+      color: #999;
+      text-decoration: line-through;
+      opacity: .65;
+      cursor: not-allowed;
+    }
+    .nav-item.not-applicable:hover {
+      margin: 0;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      color: #999;
+      font-weight: normal;
+    }
+
+    .nav-item.active, .nav-item:hover {
+      margin:6px 10px; border:1px solid #f1a44f; border-radius:4px;
+      color:#f57c00; font-weight:700; background:#fff4eb;
+    }
+    .main { flex:1; padding:22px; min-width:0; margin-left:255px; width:calc(100% - 255px); }
+    .screen { display:none; }
+    .screen.active { display:block; }
+    .banner {
+      min-height:80px; border-radius:4px; color:#fff; padding:14px 18px;
+      background:linear-gradient(90deg,#f68b1e 0%,#f5b52e 50%,#ff6f1b 100%);
+      display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;
+    }
+    .banner-left { display:flex; align-items:center; gap:12px; }
+    .back-btn {
+      width:38px; height:38px; border-radius:6px; border:none; background:#fff; color:#ff6f00;
+      font-size:24px; cursor:pointer; font-weight:700;
+    }
+    .banner .small { font-size:12px; font-weight:700; }
+    .banner .big { font-size:18px; font-weight:700; margin-top:2px; }
+    .crumb { font-size:13px; color:#2d2d2d; margin-top:8px; }
+    .page-title { margin:22px 0 16px; }
+    .page-title h1 { margin:0 0 8px; font-size:38px; }
+    .page-title p { margin:0; color:#666; font-size:16px; }
+    .card, .menu-card {
+      background:#fff; border-radius:6px; box-shadow:0 1px 8px rgba(0,0,0,.08);
+      overflow:visible; margin-bottom:18px;
+    }
+    .card-body { padding:22px; }
+    .menu-card {
+      padding:16px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer;
+    }
+    .menu-card:hover { background:#fff8f3; }
+
+    .menu-card.not-applicable {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+    .menu-card.not-applicable .menu-title,
+    .menu-card.not-applicable .menu-sub {
+      text-decoration: line-through;
+      color: #777;
+    }
+    .menu-card.not-applicable:hover {
+      background: #fff;
+    }
+
+    .menu-left { display:flex; align-items:center; gap:16px; }
+    .menu-icon { width:38px; height:38px; display:flex; align-items:center; justify-content:center; font-size:26px; }
+    .menu-icon img { width:32px; height:32px; object-fit:contain; }
+    .menu-title { font-weight:700; margin-bottom:4px; }
+    .menu-sub { font-size:13px; color:#444; }
+    .arrow { font-size:28px; color:#222; }
+    .field label {
+      display:block; color:#666; font-size:13px; font-weight:700; margin-bottom:10px;
+    }
+    .input, .select {
+      width:100%; height:44px; border:none; border-bottom:1px solid #9d9d9d;
+      background:transparent; font-size:16px; outline:none; padding:0 2px;
+    }
+    .one-col { display:grid; grid-template-columns:330px; gap:16px; }
+    .date-input-wrap { position:relative; width:100%; }
+    .date-display { padding-right:44px; cursor:pointer; }
+    .date-picker-btn {
+      position:absolute; right:0; top:50%; transform:translateY(-50%);
+      width:32px; height:32px; border:none; background:transparent; cursor:pointer;
+      display:flex; align-items:center; justify-content:center; color:#666; padding:0;
+    }
+    .date-picker-btn:hover { color:#f57c00; }
+    .date-picker-btn svg { width:20px; height:20px; }
+    .native-date-input {
+      position:absolute; inset:0; opacity:0; pointer-events:none; width:1px; height:1px;
+    }
+    .form-grid { display:grid; grid-template-columns:repeat(2, minmax(220px,1fr)); gap:20px; }
+    .wide { grid-column:1 / -1; }
+    .charge-head {
+      background:#fbf1e6; color:#f57c00; font-weight:700; padding:16px 20px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .charge-left { display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
+    .checkbox {
+      width:24px; height:24px; border:2px solid #adadad; display:inline-flex;
+      align-items:center; justify-content:center; font-size:16px; font-weight:700;
+      margin-right:8px; cursor:pointer; user-select:none; vertical-align:middle;
+    }
+    .checkbox.checked { background:#ff9800; color:#fff; border-color:#ff9800; }
+    .plus-btn {
+      width:36px; height:36px; border-radius:50%; border:none; cursor:pointer;
+      background:#ff9800; color:#fff; font-size:28px; line-height:1; box-shadow:0 3px 8px rgba(0,0,0,.18);
+    }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; min-width:0; border-collapse:collapse; table-layout:auto; }
+    th, td { text-align:left; padding:13px 12px; border-bottom:1px solid #e8e8e8; vertical-align:top; }
+    th { color:#666; font-size:14px; background:#fafafa; }
+    .amount { text-align:right; }
+    .empty { text-align:center; color:#777; padding:24px 14px; }
+    .totals { background:#fbf1e6; padding:14px 20px; display:none; justify-content:flex-end; }
+    .totals-inner { min-width:260px; }
+    .totals-row { display:flex; justify-content:space-between; margin:6px 0; font-size:14px; gap:14px; }
+    .totals-row.total { color:#f57c00; font-weight:700; margin-top:10px; }
+    .filters-row {
+      display:grid; grid-template-columns:repeat(3,minmax(180px,1fr)) auto auto;
+      gap:14px; align-items:end;
+    }
+    .orange-btn, .ghost-btn {
+      height:44px; border-radius:4px; padding:0 20px; font-weight:700; cursor:pointer;
+    }
+    .orange-btn { border:none; background:#ff6f00; color:#fff; }
+    .ghost-btn { border:1px solid #ccc; background:#fff; color:#333; }
+    .badge {
+      display:inline-block; padding:6px 12px; border-radius:999px; border:1px solid #ffd1b0;
+      background:#fff7f0; color:#f57c00; font-size:12px; font-weight:700;
+    }
+    .ok {
+      display:inline-flex; width:24px; height:24px; border-radius:50%; align-items:center;
+      justify-content:center; background:#2eaa4f; color:#fff; font-weight:700;
+    }
+    .summary { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; padding:20px 22px; }
+    .summary-left { display:flex; gap:28px; flex-wrap:wrap; }
+    .summary-item { min-width:170px; padding-right:28px; border-right:1px solid #e2e2e2; }
+    .summary-item:last-child { border-right:none; }
+    .label-small { color:#777; font-size:13px; margin-bottom:8px; }
+    .value-big { font-size:20px; font-weight:700; }
+    .section-title { padding:20px 22px 8px; }
+    .section-title h2 { margin:0 0 4px; font-size:22px; }
+    .section-title p { margin:0; color:#666; font-size:14px; }
+    .status {
+      display:inline-block; padding:6px 10px; border-radius:999px; background:#e9f8ed;
+      border:1px solid #c7e8cf; color:#268a3e; font-size:12px; font-weight:700;
+    }
+    .icon-btn { width:30px; height:30px; border:none; border-radius:4px; background:#ff9800; color:#fff; cursor:pointer; }
+    .tabs { display:flex; background:#fff; border-bottom:1px solid #ddd; }
+    .tab { padding:16px 18px; font-weight:700; color:#777; border-bottom:2px solid transparent; }
+    .tab.active { color:#ff6f00; border-color:#ff6f00; }
+    .list-row {
+      background:#fff; border-bottom:1px solid #e8e8e8; padding:16px 18px;
+      display:flex; justify-content:space-between; align-items:center; cursor:pointer;
+    }
+    .list-row:hover { background:#fff8f3; }
+    .list-row small { display:block; color:#444; margin-top:5px; }
+    .list-row.not-applicable {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+    .list-row.not-applicable:hover {
+      background:#fff;
+    }
+    .list-row.not-applicable strong,
+    .list-row.not-applicable small {
+      text-decoration: line-through;
+      color:#777;
+    }
+    .list-row.not-applicable .kebab {
+      cursor:not-allowed;
+    }
+    .kebab { font-size:24px; cursor:pointer; padding:4px 8px; }
+
+
+    .generated-actions {
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      padding:16px 22px 20px;
+      border-top:1px solid #eee;
+      background:#fff;
+    }
+    .generated-actions .ghost-btn,
+    .generated-actions .orange-btn {
+      min-width:150px;
+    }
+
+
+    .share-modal {
+      width: 520px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0,0,0,.25);
+    }
+    .share-head {
+      background: #fbf1e6;
+      color: #ff6f00;
+      font-weight: 700;
+      font-size: 18px;
+      padding: 14px 18px;
+    }
+    .share-body {
+      padding: 30px 24px 26px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .share-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 24px;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .share-icon.whatsapp { background: #25d366; }
+    .share-icon.facebook { background: #3b5998; }
+    .share-icon.telegram { background: #2ca5e0; }
+    .share-icon.twitter { background: #1da1f2; }
+    .share-icon.email {
+      background: #fff;
+      color: #222;
+      border: 3px solid #222;
+      font-size: 22px;
+    }
+    .share-foot {
+      padding: 0 14px 14px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+
+    .charge-table th:nth-child(1), .charge-table td:nth-child(1) { width:70px; }
+    .charge-table th:nth-child(3), .charge-table td:nth-child(3) { width:150px; }
+    .charge-table th:nth-child(4), .charge-table td:nth-child(4) { width:70px; text-align:center; }
+
+    .debtor-table th:nth-child(1), .debtor-table td:nth-child(1) { width:55px; }
+    .debtor-table th:nth-child(2), .debtor-table td:nth-child(2) { width:160px; }
+    .debtor-table th:nth-child(3), .debtor-table td:nth-child(3) { width:auto; }
+    .debtor-table th:nth-child(4), .debtor-table td:nth-child(4) { width:190px; }
+    .debtor-table th:nth-child(5), .debtor-table td:nth-child(5) { width:180px; }
+
+    .generated-table th:nth-child(1), .generated-table td:nth-child(1) { width:55px; }
+    .generated-table th:nth-child(2), .generated-table td:nth-child(2) { width:145px; }
+    .generated-table th:nth-child(3), .generated-table td:nth-child(3) { width:130px; }
+    .generated-table th:nth-child(4), .generated-table td:nth-child(4) { width:auto; }
+    .generated-table th:nth-child(5), .generated-table td:nth-child(5) { width:155px; }
+    .generated-table th:nth-child(6), .generated-table td:nth-child(6) { width:260px; }
+    .generated-table th:nth-child(7), .generated-table td:nth-child(7) { width:145px; }
+    .generated-table th:nth-child(8), .generated-table td:nth-child(8) { width:110px; }
+    .generated-table th:nth-child(9), .generated-table td:nth-child(9) { width:95px; text-align:center; }
+
+    .table-wrap { overflow-x: visible; }
+
+    @media (max-width:1200px) {
+      .table-wrap { overflow-x:auto; }
+      .generated-table { min-width:1050px; }
+    }
+
+
+    .standing-charge-select {
+      position: relative;
+      display: inline-block;
+      width: 460px;
+      max-width: 100%;
+      vertical-align: middle;
+      margin-left: 22px;
+      z-index: 150;
+    }
+    .standing-charge-display {
+      height: 44px;
+      border-bottom: 1px solid #9d9d9d;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      cursor: pointer;
+      font-size: 15px;
+      background: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      gap: 10px;
+    }
+    .standing-charge-display span:first-child {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .standing-charge-panel {
+      display: none;
+      position: absolute;
+      top: 50px;
+      left: 0;
+      width: 100%;
+      max-height: 210px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ddd;
+      box-shadow: 0 8px 22px rgba(0,0,0,.24);
+      z-index: 300;
+      padding: 8px 0;
+      border-radius: 4px;
+    }
+    .standing-charge-panel.show {
+      display: block;
+    }
+    .standing-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1.3;
+    }
+    .standing-option:hover {
+      background: #fff7f0;
+    }
+    .standing-option input {
+      width: 18px;
+      height: 18px;
+      accent-color: #ff9800;
+      flex-shrink: 0;
+    }
+    .standing-charge-disabled {
+      opacity: .55;
+      pointer-events: none;
+    }
+
+
+    .details-scroll {
+      max-height: 62vh;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+    .details-scroll::-webkit-scrollbar {
+      width: 8px;
+    }
+    .details-scroll::-webkit-scrollbar-thumb {
+      background: #999;
+      border-radius: 10px;
+    }
+    .details-scroll::-webkit-scrollbar-track {
+      background: #eee;
+    }
+
+
+    .debtor-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+    .debtor-table th:nth-child(1), .debtor-table td:nth-child(1) { width: 55px; }
+    .debtor-table th:nth-child(2), .debtor-table td:nth-child(2) { width: 150px; }
+    .debtor-table th:nth-child(3), .debtor-table td:nth-child(3) { width: 320px; }
+    .debtor-table th:nth-child(4), .debtor-table td:nth-child(4) { width: 180px; }
+    .debtor-table th:nth-child(5), .debtor-table td:nth-child(5) { width: 160px; }
+    .generated-table th, .generated-table td {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    .generated-table th:nth-child(6), .generated-table td:nth-child(6) {
+      width: 115px;
+      white-space: nowrap;
+    }
+
+
+    .confirm-modal {
+      width: 520px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0,0,0,.25);
+    }
+    .confirm-head {
+      background: #fbf1e6;
+      color: #ff6f00;
+      font-weight: 700;
+      padding: 14px 18px;
+    }
+    .confirm-body {
+      padding: 18px;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+    .confirm-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 18px 18px;
+    }
+    @media (max-width: 980px) {
+      .confirm-foot {
+        flex-direction: row;
+      }
+      .confirm-foot .orange-btn,
+      .confirm-foot .ghost-btn {
+        width: auto;
+        min-width: 110px;
+      }
+    }
+
+
+    .details-scroll {
+      max-height: 72vh;
+      padding: 12px 14px;
+    }
+    .details-scroll .detail-card {
+      margin-bottom: 8px !important;
+      border-radius: 4px !important;
+    }
+    .details-scroll .detail-head {
+      padding: 8px 10px !important;
+    }
+    .details-scroll .detail-head strong {
+      font-size: 14px;
+    }
+    .details-scroll .detail-type {
+      font-size: 12px !important;
+    }
+    .details-scroll table th,
+    .details-scroll table td {
+      padding: 7px 8px !important;
+      font-size: 13px !important;
+    }
+    .details-scroll table th:first-child,
+    .details-scroll table td:first-child {
+      width: 42px !important;
+    }
+    .details-scroll table th:last-child,
+    .details-scroll table td:last-child {
+      width: 110px !important;
+    }
+    .details-scroll table td div {
+      font-size: 11px !important;
+      line-height: 1.1;
+    }
+    @media (max-width:980px) {
+      .details-scroll {
+        max-height: 70vh;
+        padding: 10px;
+      }
+    }
+
+    .modal-bg {
+      position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center;
+      padding:18px; z-index:50;
+    }
+    .modal-bg.show { display:flex; }
+    .modal {
+      width:880px; max-width:100%; background:#fff; border-radius:8px; overflow:hidden;
+      box-shadow:0 12px 36px rgba(0,0,0,.25);
+    }
+    .modal-head, .modal-foot {
+      padding:16px 18px; display:flex; justify-content:space-between; align-items:center;
+      border-bottom:1px solid #eee;
+    }
+    .modal-foot { border-bottom:none; border-top:1px solid #eee; justify-content:flex-end; gap:10px; }
+    .modal-body { padding:18px; }
+    .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .toast {
+      position:fixed; right:18px; bottom:18px; background:#222; color:#fff; border-radius:6px;
+      padding:12px 16px; opacity:0; transform:translateY(10px); transition:.2s ease; z-index:70;
+    }
+    .toast.show { opacity:1; transform:translateY(0); }
+
+
+    .tooltip-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .tooltip-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ff9800;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: help;
+      line-height: 1;
+    }
+    .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      position: absolute;
+      left: 28px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 310px;
+      background: #333;
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 5px;
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.4;
+      z-index: 200;
+      transition: opacity .15s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    }
+    .tooltip-text::before {
+      content: "";
+      position: absolute;
+      left: -7px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 7px 7px 7px 0;
+      border-style: solid;
+      border-color: transparent #333 transparent transparent;
+    }
+    .tooltip-wrap:hover .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    .disabled-toggle {
+      opacity: .55;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    @media (max-width:980px) {
+      .layout { display:block; padding-top:64px; }
+      .sidebar { position:relative; top:auto; left:auto; bottom:auto; width:100%; max-height:none; }
+      .main { padding:14px; margin-left:0; width:100%; }
+      .filters-row, .form-grid { grid-template-columns:1fr; }
+      .one-col { grid-template-columns:1fr; }
+      .grid-2 { grid-template-columns:1fr; }
+      .orange-btn, .ghost-btn { width:100%; }
+    }
+  
+
+    .mobile-overlay { display:none; }
+
+    @media (max-width:980px) {
+      body { overflow-x:hidden; }
+      .topbar { padding:0 14px; }
+      .hamburger { display:block; }
+
+      .mobile-overlay {
+        position: fixed;
+        inset: 64px 0 0 0;
+        background: rgba(0,0,0,.35);
+        z-index: 55;
+      }
+      .mobile-overlay.show { display:block; }
+
+      .layout { display:block; padding-top:64px; }
+      .sidebar {
+        position: fixed;
+        top: 64px;
+        left: -270px;
+        bottom: 0;
+        width: 250px;
+        max-height: none;
+        transition: left .25s ease;
+        z-index: 60;
+        box-shadow: 6px 0 18px rgba(0,0,0,.12);
+      }
+      .sidebar.open { left: 0; }
+
+      .main {
+        padding: 12px;
+        margin-left: 0;
+        width: 100%;
+      }
+
+      .banner {
+        padding: 12px 14px;
+        align-items: flex-start;
+        gap: 10px;
+        flex-direction: column;
+        margin-bottom: 14px;
+      }
+      .banner-left { width:100%; }
+      .banner .big { font-size: 16px; }
+      .crumb { font-size: 12px; }
+      .page-title { margin: 18px 0 12px; }
+      .page-title h1 { font-size: 30px; }
+      .page-title p { font-size: 15px; }
+      .card, .menu-card { margin-bottom: 14px; }
+      .card-body { padding: 16px; }
+      .section-title { padding: 16px 16px 8px; }
+      .section-title h2 { font-size: 24px; }
+
+      .form-grid,
+      .filters-row,
+      .grid-2,
+      .one-col {
+        grid-template-columns: 1fr;
+      }
+      .filters-row { gap: 12px; }
+
+      .summary {
+        padding: 16px;
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .summary-left {
+        gap: 12px;
+        flex-direction: column;
+      }
+      .summary-item {
+        min-width: 0;
+        width: 100%;
+        padding: 0 0 12px;
+        border-right: none;
+        border-bottom: 1px solid #eee;
+      }
+      .summary-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      .summary > div:last-child {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .orange-btn, .ghost-btn { width: 100%; }
+
+      .generated-actions {
+        flex-direction: column;
+        padding: 16px;
+      }
+      .generated-actions .ghost-btn,
+      .generated-actions .orange-btn {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .charge-head {
+        padding: 14px 16px;
+        gap: 10px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+      .charge-left {
+        gap: 12px;
+        width: 100%;
+      }
+      .standing-charge-select {
+        width: 100%;
+        margin-left: 0;
+        margin-top: 6px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      .charge-table { min-width: 560px; }
+      .debtor-table { min-width: 720px; }
+      .generated-table { min-width: 1000px; }
+      th, td {
+        padding: 11px 8px;
+        font-size: 14px;
+      }
+
+  
+    .confirm-modal {
+      width: 520px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0,0,0,.25);
+    }
+    .confirm-head {
+      background: #fbf1e6;
+      color: #ff6f00;
+      font-weight: 700;
+      padding: 14px 18px;
+    }
+    .confirm-body {
+      padding: 18px;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+    .confirm-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 18px 18px;
+    }
+    @media (max-width: 980px) {
+      .confirm-foot {
+        flex-direction: row;
+      }
+      .confirm-foot .orange-btn,
+      .confirm-foot .ghost-btn {
+        width: auto;
+        min-width: 110px;
+      }
+    }
+
+
+    .details-scroll {
+      max-height: 72vh;
+      padding: 12px 14px;
+    }
+    .details-scroll .detail-card {
+      margin-bottom: 8px !important;
+      border-radius: 4px !important;
+    }
+    .details-scroll .detail-head {
+      padding: 8px 10px !important;
+    }
+    .details-scroll .detail-head strong {
+      font-size: 14px;
+    }
+    .details-scroll .detail-type {
+      font-size: 12px !important;
+    }
+    .details-scroll table th,
+    .details-scroll table td {
+      padding: 7px 8px !important;
+      font-size: 13px !important;
+    }
+    .details-scroll table th:first-child,
+    .details-scroll table td:first-child {
+      width: 42px !important;
+    }
+    .details-scroll table th:last-child,
+    .details-scroll table td:last-child {
+      width: 110px !important;
+    }
+    .details-scroll table td div {
+      font-size: 11px !important;
+      line-height: 1.1;
+    }
+    @media (max-width:980px) {
+      .details-scroll {
+        max-height: 70vh;
+        padding: 10px;
+      }
+    }
+
+    .modal-bg { padding: 10px; }
+      .modal {
+        width: 100%;
+        max-height: 88vh;
+        display: flex;
+        flex-direction: column;
+      }
+      .modal-head, .modal-foot { padding: 14px; }
+      .modal-body {
+        padding: 14px;
+        overflow: auto;
+      }
+      .details-scroll {
+        max-height: 58vh;
+        padding-right: 0;
+      }
+
+      .share-modal { width: 100%; }
+      .share-body { padding: 22px 18px; }
+
+      .tooltip-text {
+        left: 0;
+        top: calc(100% + 8px);
+        transform: none;
+        width: min(260px, calc(100vw - 40px));
+      }
+      .tooltip-text::before {
+        left: 14px;
+        top: -7px;
+        transform: none;
+        border-width: 0 7px 7px 7px;
+        border-color: transparent transparent #333 transparent;
+      }
+    }
+
+  
+    /* Ultra compact Details popup */
+    #previewModalBg .modal {
+      width: 980px;
+      max-height: 92vh;
+    }
+    #previewModalBg .modal-head {
+      padding: 10px 14px;
+      min-height: 48px;
+    }
+    #previewModalBg .modal-head .ghost-btn {
+      height: 36px;
+      width: 44px;
+      padding: 0;
+    }
+    #previewModalBg .modal-body.details-scroll {
+      max-height: 76vh;
+      padding: 8px 12px;
+    }
+    #previewModalBg .modal-foot {
+      padding: 8px 12px;
+    }
+    #previewModalBg .detail-card {
+      margin-bottom: 6px !important;
+      border-radius: 4px !important;
+    }
+    #previewModalBg .detail-head {
+      padding: 6px 9px !important;
+      min-height: 38px;
+    }
+    #previewModalBg .detail-head strong {
+      font-size: 13px !important;
+      line-height: 1.15;
+    }
+    #previewModalBg .detail-head > strong:last-child {
+      font-size: 13px !important;
+      white-space: nowrap;
+    }
+    #previewModalBg .detail-type {
+      font-size: 11px !important;
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+    #previewModalBg table th,
+    #previewModalBg table td {
+      padding: 4px 8px !important;
+      font-size: 12px !important;
+      line-height: 1.15 !important;
+    }
+    #previewModalBg table th {
+      height: 24px;
+    }
+    #previewModalBg table td {
+      height: 28px;
+    }
+    #previewModalBg table td strong {
+      font-size: 12px !important;
+      line-height: 1.1;
+    }
+    #previewModalBg table td div {
+      font-size: 9px !important;
+      line-height: 1 !important;
+      margin-top: 0 !important;
+    }
+    #previewModalBg table th:first-child,
+    #previewModalBg table td:first-child {
+      width: 38px !important;
+    }
+    #previewModalBg table th:last-child,
+    #previewModalBg table td:last-child {
+      width: 105px !important;
+    }
+    @media (max-width:980px) {
+      #previewModalBg .modal {
+        width: 100%;
+        max-height: 92vh;
+      }
+      #previewModalBg .modal-body.details-scroll {
+        max-height: 74vh;
+        padding: 8px;
+      }
+    }
+
+  
+    /* 4-record compact Details popup */
+    #previewModalBg .modal {
+      width: 1020px;
+      max-height: 94vh;
+    }
+    #previewModalBg .modal-head {
+      padding: 8px 14px;
+      min-height: 42px;
+    }
+    #previewModalBg .modal-body.details-scroll {
+      max-height: 79vh;
+      padding: 6px 10px;
+    }
+    #previewModalBg .modal-foot {
+      padding: 6px 10px;
+    }
+    #previewModalBg .detail-card {
+      margin-bottom: 5px !important;
+      border-radius: 4px !important;
+    }
+    #previewModalBg .detail-head {
+      padding: 5px 8px !important;
+      min-height: 30px;
+    }
+    #previewModalBg .detail-head strong {
+      font-size: 13px !important;
+      line-height: 1.05 !important;
+    }
+    #previewModalBg .detail-type {
+      font-size: 11px !important;
+      line-height: 1 !important;
+      margin-top: 1px !important;
+    }
+    #previewModalBg .detail-items {
+      padding: 4px 8px 5px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3px;
+      background: #fff;
+    }
+    #previewModalBg .detail-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 3px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 12px;
+      line-height: 1.1;
+    }
+    #previewModalBg .detail-item-name {
+      font-weight: 700;
+      color: #222;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #previewModalBg .detail-item-amount {
+      font-weight: 700;
+      white-space: nowrap;
+      text-align: right;
+      min-width: 60px;
+    }
+    @media (max-width:980px) {
+      #previewModalBg .modal {
+        width: 100%;
+        max-height: 94vh;
+      }
+      #previewModalBg .modal-body.details-scroll {
+        max-height: 78vh;
+        padding: 6px;
+      }
+      #previewModalBg .detail-items {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  
+    .details-filter {
+      padding: 8px 12px;
+      border-bottom: 1px solid #eee;
+      background: #fff;
+    }
+    .details-filter .input {
+      height: 38px;
+      font-size: 14px;
+    }
+
+  
+    #previewModalBg .detail-items {
+      grid-template-columns: 1fr !important;
+      gap: 3px !important;
+    }
+    #previewModalBg .detail-item {
+      width: 100%;
+    }
+
+  
+    .details-filter {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .details-filter .input {
+      flex: 1;
+    }
+    .advance-search-btn {
+      width: 38px;
+      height: 38px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      color: #222;
+      flex-shrink: 0;
+    }
+    .advance-search-btn:hover {
+      background: #fff4eb;
+      color: #ff6f00;
+    }
+    .advance-search-btn svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      fill: none;
+      stroke-linecap: round;
+    }
+
+  
+    .advanced-filter-panel {
+      display: none;
+      padding: 8px 12px 10px;
+      border-bottom: 1px solid #eee;
+      background: #fffaf5;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .advanced-filter-panel.show {
+      display: flex;
+    }
+    .advanced-filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #ffd1b0;
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .advanced-filter-chip input {
+      accent-color: #ff9800;
+    }
+    .advanced-filter-actions {
+      display: inline-flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .mini-btn {
+      height: 30px;
+      padding: 0 10px;
+      border: 1px solid #ccc;
+      background: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .mini-btn.primary {
+      background: #ff6f00;
+      border-color: #ff6f00;
+      color: #fff;
+    }
+
+  
+    .adv-charge-modal {
+      width: 520px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0,0,0,.25);
+    }
+    .adv-charge-head {
+      background: #fbf1e6;
+      color: #ff6f00;
+      font-weight: 700;
+      padding: 14px 18px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .adv-charge-body {
+      padding: 14px 18px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .adv-charge-option {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 4px;
+      border-bottom:1px solid #eee;
+      cursor:pointer;
+      font-size:14px;
+    }
+    .adv-charge-option:last-child {
+      border-bottom:none;
+    }
+    .adv-charge-option input {
+      width:18px;
+      height:18px;
+      accent-color:#ff9800;
+      flex-shrink:0;
+    }
+    .adv-charge-foot {
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      padding:14px 18px;
+      border-top:1px solid #eee;
+    }
+    @media (max-width:980px) {
+      .adv-charge-foot { flex-direction:column; }
+      .adv-charge-foot .ghost-btn,
+      .adv-charge-foot .orange-btn { width:100%; }
+    }
+
+  
+    /* Balanced Generated Standing Charges table column widths */
+    .generated-table {
+      table-layout: fixed;
+      width: 100%;
+    }
+    .generated-table th,
+    .generated-table td {
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+      vertical-align: middle;
+    }
+    .generated-table th:nth-child(1), .generated-table td:nth-child(1) { width: 48px !important; }
+    .generated-table th:nth-child(2), .generated-table td:nth-child(2) { width: 130px !important; }
+    .generated-table th:nth-child(3), .generated-table td:nth-child(3) { width: 110px !important; }
+    .generated-table th:nth-child(4), .generated-table td:nth-child(4) { width: 230px !important; }
+    .generated-table th:nth-child(5), .generated-table td:nth-child(5) { width: 130px !important; }
+    .generated-table th:nth-child(6), .generated-table td:nth-child(6) { width: 260px !important; white-space: normal !important; }
+    .generated-table th:nth-child(7), .generated-table td:nth-child(7) { width: 115px !important; }
+    .generated-table th:nth-child(8), .generated-table td:nth-child(8) { width: 110px !important; }
+    .generated-table th:nth-child(9), .generated-table td:nth-child(9) { width: 90px !important; text-align:center !important; }
+    .generated-table th:nth-child(10), .generated-table td:nth-child(10) { width: 90px !important; text-align:center !important; }
+
+  
+    .info-tip {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid #ff9800;
+      color: #ff6f00;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: help;
+      margin-left: 8px;
+      background: #fffaf3;
+      vertical-align: middle;
+    }
+    .info-tip .info-text {
+      display: none;
+      position: absolute;
+      left: 50%;
+      top: 30px;
+      transform: translateX(-50%);
+      width: 260px;
+      background: #333;
+      color: #fff;
+      padding: 8px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 400;
+      line-height: 1.35;
+      z-index: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    }
+    .info-tip .info-text::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 0 6px 6px 6px;
+      border-style: solid;
+      border-color: transparent transparent #333 transparent;
+    }
+    .info-tip:hover .info-text {
+      display: block;
+    }
+
+  
+    .input[disabled], .select[disabled] {
+      background: #f7f7f7;
+      color: #666;
+      cursor: not-allowed;
+      opacity: 1;
+      border-bottom: 1px solid #c7c7c7;
+    }
+
+  
+    /* Alignment fix: keep wide tables inside their card instead of pushing the whole page */
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .main {
+      overflow-x: hidden;
+    }
+    .card-body.table-wrap,
+    .table-wrap {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto !important;
+      overflow-y: visible;
+      -webkit-overflow-scrolling: touch;
+    }
+    .generated-table {
+      width: 100%;
+      min-width: 1120px;
+      table-layout: fixed;
+    }
+    .generated-table th,
+    .generated-table td {
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+      vertical-align: middle;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .generated-table th:nth-child(1), .generated-table td:nth-child(1) { width: 45px !important; }
+    .generated-table th:nth-child(2), .generated-table td:nth-child(2) { width: 115px !important; }
+    .generated-table th:nth-child(3), .generated-table td:nth-child(3) { width: 95px !important; }
+    .generated-table th:nth-child(4), .generated-table td:nth-child(4) { width: 190px !important; }
+    .generated-table th:nth-child(5), .generated-table td:nth-child(5) { width: 120px !important; }
+    .generated-table th:nth-child(6), .generated-table td:nth-child(6) {
+      width: 240px !important;
+      white-space: normal !important;
+      overflow: visible;
+      text-overflow: unset;
+    }
+    .generated-table th:nth-child(7), .generated-table td:nth-child(7) { width: 115px !important; text-align:right; }
+    .generated-table th:nth-child(8), .generated-table td:nth-child(8) { width: 105px !important; }
+    .generated-table th:nth-child(9), .generated-table td:nth-child(9) { width: 80px !important; text-align:center !important; }
+    .generated-table th:nth-child(10), .generated-table td:nth-child(10) { width: 85px !important; text-align:center !important; }
+    .generated-actions {
+      width: 100%;
+    }
+    @media (min-width: 1400px) {
+      .generated-table {
+        min-width: 100%;
+      }
+    }
+
+  
+    /* Final Generated Standing Charges layout after removing Action column */
+    .generated-table {
+      width: 100%;
+      min-width: 0 !important;
+      table-layout: fixed;
+    }
+    .generated-table th:nth-child(1), .generated-table td:nth-child(1) { width: 45px !important; }
+    .generated-table th:nth-child(2), .generated-table td:nth-child(2) { width: 130px !important; }
+    .generated-table th:nth-child(3), .generated-table td:nth-child(3) { width: 105px !important; }
+    .generated-table th:nth-child(4), .generated-table td:nth-child(4) { width: 230px !important; }
+    .generated-table th:nth-child(5), .generated-table td:nth-child(5) { width: 140px !important; }
+    .generated-table th:nth-child(6), .generated-table td:nth-child(6) {
+      width: auto !important;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: unset !important;
+    }
+    .generated-table th:nth-child(7), .generated-table td:nth-child(7) { width: 130px !important; text-align:right !important; }
+    .generated-table th:nth-child(8), .generated-table td:nth-child(8) { width: 115px !important; }
+    .generated-table th:nth-child(9), .generated-table td:nth-child(9) { width: 90px !important; text-align:center !important; }
+    @media (max-width: 1200px) {
+      .generated-table { min-width: 980px !important; }
+    }
+
+  
+    /* Compact Generated Standing Charges table spacing */
+    .generated-table {
+      width: 100% !important;
+      min-width: 0 !important;
+      table-layout: fixed !important;
+      border-collapse: collapse;
+    }
+    .generated-table th,
+    .generated-table td {
+      padding: 12px 8px !important;
+      vertical-align: middle !important;
+    }
+    .generated-table th:nth-child(1), .generated-table td:nth-child(1) { width: 42px !important; }
+    .generated-table th:nth-child(2), .generated-table td:nth-child(2) { width: 112px !important; }
+    .generated-table th:nth-child(3), .generated-table td:nth-child(3) { width: 82px !important; }
+    .generated-table th:nth-child(4), .generated-table td:nth-child(4) {
+      width: 210px !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+    }
+    .generated-table th:nth-child(5), .generated-table td:nth-child(5) { width: 120px !important; }
+    .generated-table th:nth-child(6), .generated-table td:nth-child(6) {
+      width: 250px !important;
+      white-space: normal !important;
+      word-break: break-word !important;
+    }
+    .generated-table th:nth-child(7), .generated-table td:nth-child(7) {
+      width: 105px !important;
+      text-align: right !important;
+      white-space: nowrap !important;
+    }
+    .generated-table th:nth-child(8), .generated-table td:nth-child(8) { width: 95px !important; }
+    .generated-table th:nth-child(9), .generated-table td:nth-child(9) {
+      width: 72px !important;
+      text-align: center !important;
+      white-space: nowrap !important;
+    }
+    .table-wrap { overflow-x: auto !important; }
+    @media (max-width: 1200px) {
+      .generated-table { min-width: 980px !important; }
+    }
+
+  
+    .modal-foot {
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    @media (max-width:980px) {
+      .modal-foot .ghost-btn,
+      .modal-foot .orange-btn {
+        width: 100%;
+      }
+    }
+
+      /* Charge modal button sequence */
+
+    .modal-foot {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .modal-foot .orange-btn {
+      min-width: 95px;
+    }
+
+  
+    /* Bulk Update Rate popup */
+    .bulk-update-btn {
+      height: 36px;
+      border: none;
+      border-radius: 4px;
+      background: #ff6f00;
+      color: #fff;
+      font-weight: 700;
+      padding: 0 14px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .bulk-update-btn:hover { background: #e96500; }
+    .bulk-modal {
+      width: 760px;
+      max-width: calc(100vw - 24px);
+      background: #fff;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0,0,0,.25);
+    }
+    .bulk-head {
+      background: #fbf1e6;
+      color: #ff6f00;
+      font-weight: 700;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .bulk-body { padding: 18px; max-height: 70vh; overflow-y: auto; }
+    .bulk-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .bulk-charge-options {
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      padding: 10px 12px;
+      max-height: 150px;
+      overflow-y: auto;
+      background: #fff;
+    }
+    .bulk-charge-options label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 0;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .bulk-charge-options input { width: 18px; height: 18px; accent-color: #ff9800; }
+    .bulk-radio-row { display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 14px; }
+    .bulk-radio-row input { accent-color: #ff9800; }
+    .bulk-preview { display: none; margin-top: 16px; border: 1px solid #eee; border-radius: 4px; overflow: hidden; }
+    .bulk-preview.show { display: block; }
+    .bulk-preview-title { background: #fbf1e6; color: #ff6f00; font-weight: 700; padding: 10px 12px; }
+    .bulk-preview .table-wrap { max-height: 240px; overflow: auto; }
+    .bulk-preview table { min-width: 700px; }
+    .bulk-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 18px; border-top: 1px solid #eee; background: #fff; }
+    @media (max-width: 980px) {
+      .details-filter { flex-wrap: wrap; }
+      .bulk-update-btn { width: 100%; }
+      .bulk-grid { grid-template-columns: 1fr; }
+      .bulk-foot { flex-direction: column; }
+      .bulk-foot .ghost-btn, .bulk-foot .orange-btn { width: 100%; }
+    }
+
+  
+    /* Fix Bulk Update modal click issue */
+    #bulkUpdateModalBg {
+      z-index: 9999 !important;
+      pointer-events: auto !important;
+    }
+    #bulkUpdateModalBg .bulk-modal {
+      position: relative;
+      z-index: 10000 !important;
+      pointer-events: auto !important;
+    }
+    #bulkUpdateModalBg .bulk-foot {
+      position: sticky;
+      bottom: 0;
+      z-index: 10001 !important;
+      background: #fff;
+      pointer-events: auto !important;
+    }
+    #bulkUpdateModalBg .orange-btn,
+    #bulkUpdateModalBg .ghost-btn {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+    #bulkUpdateModalBg .bulk-body {
+      max-height: 58vh !important;
+    }
+
+  
+    /* Critical fix: Bulk Update footer must not be covered by scroll area */
+    #bulkUpdateModalBg {
+      z-index: 20000 !important;
+    }
+
+    #bulkUpdateModalBg .bulk-modal {
+      display: flex !important;
+      flex-direction: column !important;
+      max-height: 82vh !important;
+      overflow: hidden !important;
+      position: relative !important;
+      z-index: 20001 !important;
+      pointer-events: auto !important;
+    }
+
+    #bulkUpdateModalBg .bulk-head {
+      flex: 0 0 auto !important;
+    }
+
+    #bulkUpdateModalBg .bulk-body {
+      flex: 1 1 auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      overflow-y: auto !important;
+      padding-bottom: 18px !important;
+    }
+
+    #bulkUpdateModalBg .bulk-foot {
+      flex: 0 0 auto !important;
+      position: relative !important;
+      bottom: auto !important;
+      z-index: 20002 !important;
+      background: #fff !important;
+      pointer-events: auto !important;
+      border-top: 1px solid #eee !important;
+    }
+
+    #bulkUpdateModalBg .bulk-foot button {
+      position: relative !important;
+      z-index: 20003 !important;
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    #bulkUpdateModalBg .bulk-preview .table-wrap {
+      max-height: 180px !important;
+      overflow-y: auto !important;
+    }
+
+  
+    /* Final fix: Bulk Update popup opens as standalone modal */
+    #bulkUpdateModalBg.modal-bg.show {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 999999 !important;
+      pointer-events: auto !important;
+    }
+
+    #bulkUpdateModalBg .bulk-modal {
+      width: 760px !important;
+      max-width: calc(100vw - 32px) !important;
+      max-height: 86vh !important;
+      display: flex !important;
+      flex-direction: column !important;
+      overflow: hidden !important;
+      position: relative !important;
+      z-index: 1000000 !important;
+      pointer-events: auto !important;
+      background: #fff !important;
+    }
+
+    #bulkUpdateModalBg .bulk-body {
+      flex: 1 1 auto !important;
+      overflow-y: auto !important;
+      max-height: none !important;
+      min-height: 0 !important;
+    }
+
+    #bulkUpdateModalBg .bulk-foot {
+      flex: 0 0 auto !important;
+      position: relative !important;
+      z-index: 1000001 !important;
+      background: #fff !important;
+      pointer-events: auto !important;
+    }
+
+    #bulkUpdateModalBg button {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    #bulkUpdateModalBg .bulk-preview .table-wrap {
+      max-height: 170px !important;
+      overflow-y: auto !important;
+    }
+
+  
+    /* Confirm Update reliable click fix */
+    #bulkUpdateModalBg {
+      z-index: 999999 !important;
+      pointer-events: auto !important;
+    }
+    #bulkUpdateModalBg .bulk-modal {
+      z-index: 1000000 !important;
+      pointer-events: auto !important;
+      position: relative !important;
+      overflow: hidden !important;
+    }
+    #bulkUpdateModalBg .bulk-foot {
+      position: relative !important;
+      z-index: 1000002 !important;
+      pointer-events: auto !important;
+      background: #fff !important;
+    }
+    #bulkConfirmUpdateBtn {
+      position: relative !important;
+      z-index: 1000003 !important;
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+    #bulkSuccessModalBg.modal-bg.show {
+      display: flex !important;
+      z-index: 2000000 !important;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="hamburger">☰</div>
+    <div class="brand">HotelX</div>
+  </div>
+  <div class="mobile-overlay" id="mobileOverlay" onclick="closeMobileMenu()"></div>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="nav-item not-applicable">🛒 Room Service</div>
+      <div class="nav-item not-applicable">📋 Service Requests</div>
+      <div class="nav-item not-applicable">🎟️ Package Redemption</div>
+      <div class="nav-item not-applicable">🏢 Corp/Govt</div>
+      <div class="nav-item not-applicable">🧳 Travel Agents</div>
+      <div class="nav-item not-applicable">🪪 Guest Profile</div>
+      <div class="nav-item not-applicable">📣 Digital Marketing</div>
+      <div class="nav-item not-applicable">📊 Business Insights</div>
+      <div class="nav-item not-applicable">📄 Digital Document</div>
+      <div class="nav-item not-applicable">📈 Digital Reporting</div>
+      <div class="nav-item active" onclick="showScreen('cityLedger')">🏙️ City Account</div>
+      <div class="nav-item not-applicable">📒 Account Journals</div>
+      <div class="nav-item not-applicable">🧾 Consolidated e-Invoice</div>
+      <div class="nav-item" onclick="showScreen('hotelSettings')">⚙️ Hotel Settings</div>
+      <div class="nav-item not-applicable">⚙️ Common Settings</div>
+      <div class="nav-item not-applicable">🔐 System Admin</div>
+      <div class="nav-item not-applicable">🚪 Sign Out</div>
+    </aside>
+
+    <main class="main">
+      <!-- City Ledger -->
+      <section id="cityLedger" class="screen active">
+        <div class="banner">
+          <div>
+            <div class="small">HMS</div>
+            <div class="big">HOTEL PARADISE</div>
+            <div class="crumb">City Ledger</div>
+          </div>
+        </div>
+
+        <div class="menu-card" onclick="showScreen('setup')">
+          <div class="menu-left">
+            <div class="menu-icon"><img src="https://hms1.hotelx.asia/static/media/setup.4601194e.svg" alt=""></div>
+            <div><div class="menu-title">Setup</div><div class="menu-sub">9 Debtor Type | 83 Active Debtor Profile</div></div>
+          </div><div class="arrow">›</div>
+        </div>
+
+        <div class="menu-card not-applicable">
+          <div class="menu-left">
+            <div class="menu-icon"><img src="https://hms1.hotelx.asia/static/media/schedule-billing.078746f0.svg" alt=""></div>
+            <div><div class="menu-title">Schedule Billing</div><div class="menu-sub">Total Unposted Bill: 1,327,094.54</div></div>
+          </div><div class="arrow">›</div>
+        </div>
+
+        <div class="menu-card" onclick="showScreen('monthlyInvoice')">
+          <div class="menu-left">
+            <div class="menu-icon"><img src="https://hms1.hotelx.asia/static/media/schedule-billing.078746f0.svg" alt=""></div>
+            <div><div class="menu-title">Schedule Standing Charges</div><div class="menu-sub">Generate Standing Charges for debtors</div></div>
+          </div><div class="arrow">›</div>
+        </div>
+
+        <div class="menu-card not-applicable">
+          <div class="menu-left">
+            <div class="menu-icon"><img src="https://hms1.hotelx.asia/static/media/city-ledger-account.c69768ca.svg" alt=""></div>
+            <div><div class="menu-title">City Account</div><div class="menu-sub">83 Active Accounts.</div></div>
+          </div><div class="arrow">›</div>
+        </div>
+      </section>
+
+      <!-- Setup -->
+      <section id="setup" class="screen">
+        <div class="banner">
+          <div class="banner-left">
+            <button class="back-btn" onclick="showScreen('cityLedger')">‹</button>
+            <div><div class="small">HMS</div><div class="big">HOTEL PARADISE</div><div class="crumb">... / Setup</div></div>
+          </div>
+        </div>
+
+        <div class="menu-card not-applicable"><div><div class="menu-title">Debtor Type</div><div class="menu-sub">9 Active | 0 Inactive</div></div><div class="arrow">›</div></div>
+        <div class="menu-card" onclick="showScreen('debtorProfile')"><div><div class="menu-title">Debtor Profile</div><div class="menu-sub">18 TA | 15 CORP | 8 GOV | 1 EWALLET</div></div><div class="arrow">›</div></div>
+        <div class="menu-card not-applicable"><div><div class="menu-title">Document Numbering Settings</div><div class="menu-sub">-</div></div><div class="arrow">›</div></div>
+      </section>
+
+      <!-- Debtor Profile -->
+      <section id="debtorProfile" class="screen">
+        <div class="banner">
+          <div class="banner-left">
+            <button class="back-btn" onclick="showScreen('setup')">‹</button>
+            <div><div class="small">PMS</div><div class="big">HOTEL PARADISE</div><div class="crumb">... / Setup / Debtor Profile</div></div>
+          </div>
+          <div>Edit</div>
+        </div>
+
+        <section class="card">
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field"><label>Country *</label><select class="select"><option>Malaysia</option></select></div>
+              <div class="field"><label>State *</label><select class="select"><option>Selangor</option></select></div>
+              <div class="field"><label>City *</label><input class="input" value="Cheras"></div>
+              <div class="field"><label>PostCode *</label><input class="input" value="43200"></div>
+              <div class="field"><label>Currency *</label><select class="select"><option>MYR</option></select></div>
+              <div class="field"><label>Credit Term (Days) *</label><input class="input" value="60"></div>
+              <div class="field"><label>Credit Limits *</label><input class="input" value="300,999"></div>
+            </div>
+            <div style="margin-top:22px; display:flex; align-items:flex-start; gap:24px; flex-wrap:wrap; padding-bottom:170px;">
+              <span style="line-height:44px;"><span class="checkbox"></span>IsGroupInvoice</span>
+              <span style="line-height:44px;"><span class="checkbox"></span>Reminder Letter</span>
+              <span style="line-height:44px;">
+                <span id="debtorStandingToggle" class="checkbox checked" onclick="toggleDebtorStandingCharges()">✓</span>Standing Charges
+              </span>
+              <div id="debtorStandingChargeSelect" class="standing-charge-select">
+                <div class="standing-charge-display" onclick="toggleStandingChargeDropdown()">
+                  <span id="standingChargeSelectedText">Rental, Electricity</span>
+                  <span>▾</span>
+                </div>
+                <div id="standingChargePanel" class="standing-charge-panel">
+                  <label class="standing-option">
+                    <input type="checkbox" id="standingSelectAll" checked onchange="toggleAllStandingCharges(this.checked)">Select All
+                  </label>
+                  <label class="standing-option">
+                    <input type="checkbox" class="standing-charge-option" value="Rental" checked onchange="updateStandingChargeText()">Rental
+                  </label>
+                  <label class="standing-option">
+                    <input type="checkbox" class="standing-charge-option" value="Electricity" checked onchange="updateStandingChargeText()">Electricity
+                  </label>
+                  <label class="standing-option">
+                    <input type="checkbox" class="standing-charge-option" value="Water Charges" onchange="updateStandingChargeText()">Water Charges
+                  </label>
+                  <label class="standing-option">
+                    <input type="checkbox" class="standing-charge-option" value="Service Charges" onchange="updateStandingChargeText()">Service Charges
+                  </label>
+                  <label class="standing-option">
+                    <input type="checkbox" class="standing-charge-option" value="Maintenance Charges" onchange="updateStandingChargeText()">Maintenance Charges
+                  </label>
+                  <label class="standing-option">
+                    <input type="checkbox" class="standing-charge-option" value="Miscellaneous Charges" onchange="updateStandingChargeText()">Miscellaneous Charges
+                  </label>
+                </div>
+              </div>
+              <span class="info-tip">i
+                <span class="info-text">Display only those set with Standing Charge</span>
+              </span>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Hotel Settings -->
+      <section id="hotelSettings" class="screen">
+        <div class="banner">
+          <div>
+            <div class="small">HMS</div>
+            <div class="big">HOTEL PARADISE</div>
+            <div class="crumb">... / Submenu</div>
+          </div>
+        </div>
+
+        <div class="menu-card not-applicable"><div class="menu-left"><div class="menu-icon">🏨</div><div><div class="menu-title">Hotel Setup</div><div class="menu-sub">Hotel Information and Configuration Setup.</div></div></div><div class="arrow">›</div></div>
+        <div class="menu-card" onclick="showScreen('departmentList')"><div class="menu-left"><div class="menu-icon">👥</div><div><div class="menu-title">Department</div><div class="menu-sub">Hotel Department Setup.</div></div></div><div class="arrow">›</div></div>
+        <div class="menu-card not-applicable"><div class="menu-left"><div class="menu-icon">📍</div><div><div class="menu-title">Location</div><div class="menu-sub">Room Location Setup.</div></div></div><div class="arrow">›</div></div>
+        <div class="menu-card not-applicable"><div class="menu-left"><div class="menu-icon">🛏️</div><div><div class="menu-title">Room Type</div><div class="menu-sub">Room Type Setup.</div></div></div><div class="arrow">›</div></div>
+      </section>
+
+      <!-- Department List -->
+      <section id="departmentList" class="screen">
+        <div class="banner">
+          <div class="banner-left">
+            <button class="back-btn" onclick="showScreen('hotelSettings')">‹</button>
+            <div><div class="small">HMS</div><div class="big">HOTEL PARADISE</div><div class="crumb">... / Department</div></div>
+          </div>
+        </div>
+
+        <div class="tabs"><div class="tab active">Department <span style="color:#ff6f00;">(15)</span></div></div>
+        <div id="departmentRows"></div>
+      </section>
+
+      <!-- Incidental Charges List -->
+      <section id="incidentalCharges" class="screen">
+        <div class="banner">
+          <div class="banner-left">
+            <button class="back-btn" onclick="showScreen('departmentList')">‹</button>
+            <div><div class="small">HMS</div><div class="big">HOTEL PARADISE</div><div class="crumb">... / Department / Incidental Charges</div></div>
+          </div>
+          <div>Edit</div>
+        </div>
+
+        <div class="tabs"><div class="tab active">Incidental Charges Listing <span style="color:#ff6f00;">(17)</span></div></div>
+        <div id="incidentalRows"></div>
+      </section>
+
+      <!-- Charge Item Edit -->
+      <section id="chargeItemEdit" class="screen">
+        <div class="banner">
+          <div class="banner-left">
+            <button class="back-btn" onclick="showScreen('incidentalCharges')">‹</button>
+            <div><div class="small">HMS</div><div class="big">HOTEL PARADISE</div><div class="crumb">... / Incidental Charges</div></div>
+          </div>
+          <div>Edit</div>
+        </div>
+
+        <section class="card">
+          <div class="charge-head">Charge Item</div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field wide"><label>Title</label><input class="input" value="Monthly Rental Charges"></div>
+              <div class="field"><label>Amount (MYR)</label><input class="input" value="1,000.00"></div>
+              <div class="field"><label>Tax Scheme *</label><select class="select"><option>6% SST</option></select></div>
+              <div class="field wide"><label style="color:red;font-size:18px;">Outlet Code</label><input class="input" style="border-bottom:2px solid red;"></div>
+            </div>
+            <div style="line-height:2.7; margin-top:15px;">
+              <span class="disabled-toggle"><span class="checkbox"></span>Rate Element</span><br>
+              <span class="disabled-toggle"><span class="checkbox"></span>POS Interface</span><br>
+              <span class="disabled-toggle"><span class="checkbox"></span>Event Interface</span><br>
+              <span class="disabled-toggle"><span class="checkbox"></span>Allow Negative</span><br>
+              <span class="disabled-toggle"><span class="checkbox"></span>Kiosk</span><br>
+              <span class="disabled-toggle"><span class="checkbox"></span>3rd Party POS</span><br>
+              <span><span class="checkbox"></span>e-Invoice</span><br>
+              <div style="display:flex; flex-direction:column; align-items:flex-start; gap:8px; margin-top:6px;">
+                <span style="line-height:44px; display:inline-flex; align-items:center; gap:8px;">
+                  <span class="checkbox"></span>Editable
+                  <span class="tooltip-wrap">
+                    <span class="tooltip-icon">?</span>
+                    <span class="tooltip-text">Allow to edit if this toggle is On.</span>
+                  </span>
+                </span>
+
+                <div style="display:flex; align-items:flex-start; gap:32px; flex-wrap:wrap;">
+                  <span style="line-height:44px; display:inline-flex; align-items:center; gap:8px;">
+                    <span class="checkbox checked">✓</span>Standing Charges
+                    <span class="tooltip-wrap">
+                      <span class="tooltip-icon">?</span>
+                      <span class="tooltip-text">Once Standing Charges are enabled, all toggle will be disabled except e-Invoice.</span>
+                    </span>
+                  </span>
+
+                  <div class="field" style="width:420px;">
+                    <label>Billing Cycle *</label>
+                    <select class="select">
+                      <option>Monthly</option>
+                      <option>Yearly</option>
+                      <option>Fixed Month</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Monthly Invoice -->
+      <section id="monthlyInvoice" class="screen">
+        <div class="banner">
+          <div class="banner-left">
+            <button class="back-btn" onclick="showScreen('cityLedger')">‹</button>
+            <div>
+              <div class="small">HMS</div>
+              <div class="big">HOTEL PARADISE</div>
+              <div class="crumb">City Ledger / Schedule Standing Charges</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="page-title">
+          <h1>Standing Charges</h1>
+          <p>Generate Standing Charges for debtors</p>
+        </div>
+
+        <section class="card">
+          <div class="card-body">
+            <div class="one-col">
+              <div class="field">
+                <label>Invoice Date *</label>
+                <div class="date-input-wrap">
+                  <input id="billingDate" class="input date-display" value="31/05/2026" readonly onclick="openBillingDatePicker()">
+                  <button type="button" class="date-picker-btn" aria-label="Choose invoice date" onclick="openBillingDatePicker()">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M7 2V5M17 2V5M3 9H21M5 4H19C20.1046 4 21 4.89543 21 6V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V6C3 4.89543 3.89543 4 5 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M8 13H8.01M12 13H12.01M16 13H16.01M8 17H8.01M12 17H12.01M16 17H16.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <input type="date" id="billingDatePicker" class="native-date-input" value="2026-05-31" onchange="syncBillingDate(this.value)">
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="charge-head">
+            <div class="charge-left">
+              <span>Charge Item</span>
+              <span><span id="einvoice" class="checkbox checked">✓</span> e-Invoice</span>
+            </div>
+            <button class="plus-btn" onclick="openChargeModal()">+</button>
+          </div>
+
+          <div class="card-body">
+            <div class="table-wrap">
+              <table class="charge-table">
+                <thead>
+                  <tr>
+                    <th>No.</th>
+                    <th>Item</th>
+                    <th class="amount">Amount</th>
+                    <th style="width:70px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="chargeRows">
+                  <tr><td colspan="4" class="empty">No charge item selected. Click + to add charges.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="chargeTotals" class="totals">
+            <div class="totals-inner">
+              <div class="totals-row"><span>Sub-Total</span><strong id="subTotal">0.00</strong></div>
+              <div class="totals-row"><span>SST8 (8.00%)</span><strong id="sstTotal">0.00</strong></div>
+              <div class="totals-row"><span>SC10 (10.00%)</span><strong id="scTotal">0.00</strong></div>
+              <div class="totals-row total"><span>Total</span><strong id="netTotal">0.00</strong></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-body">
+            <div class="filters-row">
+              <div class="field">
+                <label>Debtor Code</label>
+                <input id="filterCode" class="input" placeholder="Search Debtor Code">
+              </div>
+              <div class="field">
+                <label>Debtor Name</label>
+                <input id="filterName" class="input" placeholder="Search Debtor Name">
+              </div>
+              <div class="field">
+                <label>Debtor Type</label>
+                <select id="filterType" class="select">
+                  <option value="">All Debtor Type</option>
+                  <option>Corporate</option>
+                  <option>Government</option>
+                  <option>Travel Agent</option>
+                  <option>Others</option>
+                </select>
+              </div>
+              <button class="orange-btn" onclick="loadDebtors()">Load Debtors</button>
+              <button class="ghost-btn" onclick="resetFilters()">Reset</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="debtorListSection" class="card" style="display:none;">
+          <div class="card-body table-wrap">
+            <table class="debtor-table">
+              <thead>
+                <tr>
+                  <th><span id="checkAll" class="checkbox checked" onclick="toggleAll()">✓</span></th>
+                  <th>Debtor Code</th>
+                  <th>Debtor Name</th>
+                  <th>Debtor Type</th>
+                  <th class="amount">Amount (MYR)</th>
+                </tr>
+              </thead>
+              <tbody id="debtorRows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="debtorSummarySection" class="card" style="display:none;">
+          <div class="summary">
+            <div class="summary-left">
+              <div class="summary-item"><div class="label-small">Eligible Debtors</div><div id="eligibleDebtors" class="value-big">0</div></div>
+              <div class="summary-item"><div class="label-small">Selected Debtors</div><div id="selectedDebtors" class="value-big">0</div></div>
+              <div class="summary-item"><div class="label-small">Total Invoice Amount</div><div id="totalInvoiceAmount" class="value-big">MYR 0.00</div></div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="ghost-btn" onclick="previewRun()">Details</button>
+              <button class="orange-btn" onclick="openGenerateConfirm()">Generate Standing Charges</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-title">
+            <h2>Generated Standing Charges</h2>
+            <p>View generated Standing Charges</p>
+          </div>
+          <div class="card-body table-wrap" style="padding-top:0;">
+            <table class="generated-table">
+              <thead>
+                <tr>
+                  <th><span id="generatedCheckAll" class="checkbox" onclick="toggleAllGenerated()">✓</span></th>
+                  <th>Invoice No.</th>
+                  <th>Debtor Code</th>
+                  <th>Debtor Name</th>
+                  <th>Debtor Type</th>
+                  <th>Charges</th>
+                  <th class="amount">Amount (MYR)</th>
+                  <th>Status</th>
+                  <th>Batch No.</th>
+                </tr>
+              </thead>
+              <tbody id="generatedRows">
+                <tr><td colspan="9" class="empty">No generated Standing Charges yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="generated-actions">
+            <button class="ghost-btn" onclick="shareSelectedGenerated()">Share</button>
+            <button class="orange-btn" onclick="printSelectedGenerated()">Print</button>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <!-- Charge Modal -->
+  <div id="chargeModalBg" class="modal-bg">
+    <div class="modal">
+      <div class="modal-head">
+        <strong>Incidental Charges</strong>
+        <button class="ghost-btn" onclick="closeChargeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label>Incidental Charges</label>
+          <select id="chargeName" class="select">
+            <option>Monthly Rental Charges</option>
+            <option>Electricity</option>
+            <option>Water Charges</option>
+            <option>Service Charges</option>
+            <option>Late Payment Charges</option>
+            <option>Miscellaneous Charges</option>
+          </select>
+        </div>
+
+        <div style="height:16px;"></div>
+
+        <div class="grid-2">
+          <div class="field"><label>Classification</label><input class="input" value="022 | Others"></div>
+          <div class="field"><label>Reference No.</label><input id="chargeRef" class="input" value=""></div>
+          <div class="field"><label>Quantity *</label><input id="chargeQty" class="input" value="1" disabled></div>
+          <div class="field"><label>Unit Price *</label><input id="chargePrice" class="input" value="1.00" disabled></div>
+          <div class="field"><label>Description</label><input id="chargeDesc" class="input" value=""></div>
+        </div>
+
+        <div style="height:16px;"></div>
+
+        <div class="totals" style="display:flex;">
+          <div class="totals-inner">
+            <div class="totals-row"><span>Gross Amount</span><strong id="modalGross">0.85</strong></div>
+            <div class="totals-row"><span>SST8 (8.00%)</span><strong id="modalSst">0.07</strong></div>
+            <div class="totals-row"><span>SC10 (10.00%)</span><strong id="modalSc">0.08</strong></div>
+            <div class="totals-row total"><span>Nett Amount</span><strong id="modalNet">1.00</strong></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="orange-btn" onclick="saveChargeAndNew()">Save & New</button>
+        <button class="orange-btn" onclick="closeChargeModal()">Cancel</button>
+        <button class="orange-btn" onclick="saveCharge()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview Modal -->
+  <div id="previewModalBg" class="modal-bg">
+    <div class="modal">
+      <div class="modal-head">
+        <strong>Details</strong>
+        <button class="ghost-btn" onclick="closePreview()">✕</button>
+      </div>
+      <div class="details-filter">
+        <input id="detailsChargeSearch" class="input" placeholder="Search" oninput="renderPreviewDetails()">
+        <button type="button" class="advance-search-btn" title="Advanced Search" onclick="toggleDetailsAdvancedFilter()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 6h10"></path>
+            <path d="M18 6h2"></path>
+            <path d="M16 4v4"></path>
+            <path d="M4 12h3"></path>
+            <path d="M11 12h9"></path>
+            <path d="M9 10v4"></path>
+            <path d="M4 18h12"></path>
+            <path d="M18 16v4"></path>
+          </svg>
+        </button>
+        <button type="button" class="bulk-update-btn" onclick="openBulkUpdateModal()">Bulk Update Rate</button>
+      </div>
+      <div id="previewBody" class="modal-body details-scroll"></div>
+      <div class="modal-foot">
+        <button class="ghost-btn" onclick="closePreview()">Close</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Generate Confirmation Modal -->
+  <div id="generateConfirmBg" class="modal-bg">
+    <div class="confirm-modal">
+      <div class="confirm-head">Confirm Standing Charges</div>
+      <div class="confirm-body">
+        Confirm to proceed with generating <strong>Standing Charges</strong>?
+      </div>
+      <div class="confirm-foot">
+        <button class="orange-btn" onclick="closeGenerateConfirm()">Cancel</button>
+        <button class="orange-btn" onclick="confirmGenerateStandingCharges()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Bulk Update Rate Modal -->
+  <div id="bulkUpdateModalBg" class="modal-bg" onclick="event.stopPropagation()">
+    <div class="bulk-modal">
+      <div class="bulk-head">
+        <span>Bulk Update Incidental Charges Rate</span>
+        <button type="button" class="ghost-btn" style="width:44px;height:36px;padding:0;" onclick="closeBulkUpdateModal()">✕</button>
+      </div>
+      <div class="bulk-body">
+        <div class="bulk-grid">
+          <div class="field">
+            <label>Incidental Charges *</label>
+            <div id="bulkChargeOptions" class="bulk-charge-options"></div>
+          </div>
+          <div class="field">
+            <label>Apply To *</label>
+            <label class="bulk-radio-row"><input type="radio" name="bulkApplyTo" value="all" checked> All selected debtors</label>
+            <label class="bulk-radio-row"><input type="radio" name="bulkApplyTo" value="type"> Debtor Type only</label>
+            <select id="bulkDebtorType" class="select" disabled>
+              <option>Travel Agent</option>
+              <option>Corporate</option>
+              <option>Government</option>
+              <option>Others</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Update Method *</label>
+            <select id="bulkUpdateMethod" class="select">
+              <option value="replace">Replace Amount</option>
+              <option value="increaseAmount">Increase by Amount</option>
+              <option value="decreaseAmount">Decrease by Amount</option>
+              <option value="increasePercent">Increase by Percentage</option>
+              <option value="decreasePercent">Decrease by Percentage</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>New Rate / Value *</label>
+            <input id="bulkUpdateValue" class="input" value="1.00" placeholder="Enter amount or percentage">
+          </div>
+        </div>
+        <div class="bulk-preview" id="bulkPreviewBox">
+          <div class="bulk-preview-title">Preview Changes</div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Debtor Code</th>
+                  <th>Debtor Name</th>
+                  <th>Debtor Type</th>
+                  <th>Charge Item</th>
+                  <th class="amount">Current Rate</th>
+                  <th class="amount">New Rate</th>
+                </tr>
+              </thead>
+              <tbody id="bulkPreviewBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="bulk-foot">
+        <button type="button" class="ghost-btn" onclick="closeBulkUpdateModal()">Cancel</button>
+        <button type="button" class="ghost-btn" onclick="previewBulkUpdate()">Preview Changes</button>
+        <button type="button" class="orange-btn" id="bulkConfirmUpdateBtn"
+          onpointerdown="event.preventDefault(); event.stopPropagation(); performBulkUpdateNow();"
+          onmousedown="event.preventDefault(); event.stopPropagation(); performBulkUpdateNow();"
+          ontouchstart="event.preventDefault(); event.stopPropagation(); performBulkUpdateNow();"
+          onclick="event.preventDefault(); event.stopPropagation(); performBulkUpdateNow();">Confirm Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Advanced Search Incidental Charges Modal -->
+  <div id="advancedChargeModalBg" class="modal-bg">
+    <div class="adv-charge-modal">
+      <div class="adv-charge-head">
+        <span>Advanced Search - Incidental Charges</span>
+        <button type="button" class="ghost-btn" style="width:44px;height:36px;padding:0;" onclick="closeAdvancedChargeModal()">✕</button>
+      </div>
+      <div class="adv-charge-body">
+        <label class="adv-charge-option"><input type="checkbox" class="details-filter-option" value="Monthly Rental Charges" checked>Monthly Rental Charges</label>
+        <label class="adv-charge-option"><input type="checkbox" class="details-filter-option" value="Electricity" checked>Electricity</label>
+        <label class="adv-charge-option"><input type="checkbox" class="details-filter-option" value="Water Charges" checked>Water Charges</label>
+        <label class="adv-charge-option"><input type="checkbox" class="details-filter-option" value="Service Charges" checked>Service Charges</label>
+        <label class="adv-charge-option"><input type="checkbox" class="details-filter-option" value="Late Payment Charges" checked>Late Payment Charges</label>
+        <label class="adv-charge-option"><input type="checkbox" class="details-filter-option" value="Miscellaneous Charges" checked>Miscellaneous Charges</label>
+      </div>
+      <div class="adv-charge-foot">
+        <button type="button" class="ghost-btn" onclick="clearDetailsAdvancedFilter()">Clear</button>
+        <button type="button" class="ghost-btn" onclick="selectAllDetailsAdvancedFilter()">Select All</button>
+        <button type="button" class="orange-btn" onclick="applyAdvancedChargeFilter()">Apply</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Updated Successfully Modal -->
+  <div id="bulkSuccessModalBg" class="modal-bg">
+    <div class="confirm-modal" style="max-width:420px;">
+      <div class="confirm-head">Updated Successfully</div>
+      <div class="confirm-body">
+        Bulk rate has been updated successfully.
+      </div>
+      <div class="confirm-foot">
+        <button type="button" class="orange-btn" onclick="closeBulkSuccessModal()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal -->
+  <div id="shareModalBg" class="modal-bg">
+    <div class="share-modal">
+      <div class="share-head">Share</div>
+      <div class="share-body">
+        <a class="share-icon whatsapp" title="WhatsApp" onclick="shareVia('whatsapp')">☘</a>
+        <a class="share-icon facebook" title="Facebook" onclick="shareVia('facebook')">f</a>
+        <a class="share-icon telegram" title="Telegram" onclick="shareVia('telegram')">➤</a>
+        <a class="share-icon twitter" title="Twitter" onclick="shareVia('twitter')">t</a>
+        <a class="share-icon email" title="Email" onclick="shareVia('email')">✉</a>
+      </div>
+      <div class="share-foot">
+        <button class="orange-btn" onclick="closeShareModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const allDebtors = [
+      { code:'CA001', name:'ABC Travel Sdn Bhd', type:'Travel Agent', cycle:'Monthly', period:'01/05/2026 - 31/05/2026', next:'31/05/2026', term:30, amount:12500 },
+      { code:'CA002', name:'Cheras Corporate Account', type:'Corporate', cycle:'Monthly', period:'01/05/2026 - 31/05/2026', next:'31/05/2026', term:60, amount:8200 },
+      { code:'CA003', name:'Metro Event Services', type:'Government', cycle:'Fixed Month', period:'01/05/2026 - 31/05/2026', next:'31/05/2026', term:45, amount:4900 },
+      { code:'CA004', name:'Paradise Business Club', type:'Corporate', cycle:'Monthly', period:'01/05/2026 - 31/05/2026', next:'31/05/2026', term:30, amount:15300 },
+      { code:'CA005', name:'Sunrise Leisure Club', type:'Others', cycle:'Monthly', period:'01/05/2026 - 31/05/2026', next:'31/05/2026', term:30, amount:6300 }
+    ];
+
+    const departments = [
+      { name:'Banquet', incidental:15, reason:1, sales:0 },
+      { name:'Breakfast (TA)', incidental:1, reason:1, sales:0 },
+      { name:'City Ledger', incidental:17, reason:0, sales:null },
+      { name:'Food and Beverages', incidental:47, reason:4, sales:null },
+      { name:'Front Office', incidental:18, reason:5, sales:null }
+    ];
+
+    const incidentalCharges = [
+      { title:'Monthly Rental Charges', amount:'MYR 1,000.00', monthly:true },
+      { title:'Opening', amount:'MYR 1.00', monthly:false },
+      { title:'Prepayment - Voucher', amount:'MYR 1.00', monthly:false },
+      { title:'Rental', amount:'MYR 1.00', monthly:false },
+      { title:'Rounding Differences', amount:'MYR 1.00', monthly:false }
+    ];
+
+    let visibleDebtors = [...allDebtors];
+    let selectedCodes = new Set(visibleDebtors.map(d => d.code));
+    let chargeItems = [];
+    let generatedInvoices = [];
+    let selectedGeneratedInvoices = new Set();
+    let currentBatchNo = 0;
+    let editingIndex = null;
+    let previewSelectedDebtors = [];
+
+    function showScreen(id) {
+      const screen = document.getElementById(id);
+      if (!screen) {
+        toast('Screen not available: ' + id);
+        return;
+      }
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      screen.classList.add('active');
+
+      if (id === 'monthlyInvoice') {
+        renderDebtors();
+        renderCharges();
+        renderGenerated();
+      }
+      if (id === 'departmentList') renderDepartments();
+      if (id === 'incidentalCharges') renderIncidentalCharges();
+
+      window.scrollTo(0, 0);
+    }
+
+    function renderDepartments() {
+      const wrap = document.getElementById('departmentRows');
+      wrap.innerHTML = departments.map(d => {
+        const isCityLedger = d.name === 'City Ledger';
+        const rowClass = isCityLedger ? 'list-row' : 'list-row not-applicable';
+        const clickAction = isCityLedger ? "showScreen('incidentalCharges')" : "return false";
+
+        return `
+        <div class="${rowClass}" onclick="${clickAction}">
+          <div>
+            <strong>${d.name}</strong>
+            <small>Incidental Charges : <span style="color:#ff6f00;font-weight:700">${d.incidental}</span> | Reason : <span style="color:#ff6f00;font-weight:700">${d.reason}</span>${d.sales !== null ? ' | Sales Channel : <span style="color:#ff6f00;font-weight:700">' + d.sales + '</span>' : ''}</small>
+          </div>
+          <div class="kebab">⋮</div>
+        </div>
+      `;
+      }).join('');
+    }
+
+    function renderIncidentalCharges() {
+      const wrap = document.getElementById('incidentalRows');
+      wrap.innerHTML = incidentalCharges.map(c => `
+        <div class="list-row" onclick="${c.title === 'Monthly Rental Charges' ? "showScreen('chargeItemEdit')" : "toast('Edit ' + '" + c.title.replace(/'/g, "\\'") + "')" }">
+          <div>
+            <strong>${c.title}</strong>
+            <small>${c.amount}${c.monthly ? ' | Monthly Invoice: Yes' : ''}</small>
+          </div>
+          <div class="kebab">⋮</div>
+        </div>
+      `).join('');
+    }
+
+    function money(v) {
+      return Number(v || 0).toLocaleString('en-MY', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    function toast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    function renderDebtors() {
+      const tbody = document.getElementById('debtorRows');
+      if (!tbody) return;
+
+      if (!visibleDebtors.length) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty">No debtor found.</td></tr>';
+      } else {
+        tbody.innerHTML = visibleDebtors.map(d => `
+          <tr>
+            <td><span class="checkbox ${selectedCodes.has(d.code) ? 'checked' : ''}" onclick="toggleDebtor('${d.code}')">${selectedCodes.has(d.code) ? '✓' : ''}</span></td>
+            <td>${d.code}</td>
+            <td>${d.name}</td>
+            <td>${d.type}</td>
+            <td class="amount">${money(chargeItems.reduce((s, c) => s + c.amount, 0))}</td>
+          </tr>
+        `).join('');
+      }
+
+      const ca = document.getElementById('checkAll');
+      if (ca) {
+        const allChecked = visibleDebtors.length && visibleDebtors.every(d => selectedCodes.has(d.code));
+        ca.className = 'checkbox ' + (allChecked ? 'checked' : '');
+        ca.textContent = allChecked ? '✓' : '';
+      }
+
+      updateSummary();
+    }
+
+    function toggleDebtor(code) {
+      if (selectedCodes.has(code)) selectedCodes.delete(code);
+      else selectedCodes.add(code);
+      renderDebtors();
+    }
+
+    function toggleAll() {
+      const allChecked = visibleDebtors.length && visibleDebtors.every(d => selectedCodes.has(d.code));
+      if (allChecked) selectedCodes.clear();
+      else selectedCodes = new Set(visibleDebtors.map(d => d.code));
+      renderDebtors();
+    }
+
+    function loadDebtors() {
+      const code = document.getElementById('filterCode').value.trim().toLowerCase();
+      const name = document.getElementById('filterName').value.trim().toLowerCase();
+      const type = document.getElementById('filterType').value.trim().toLowerCase();
+
+      visibleDebtors = allDebtors.filter(d => {
+        const codeOk = !code || d.code.toLowerCase().includes(code);
+        const nameOk = !name || d.name.toLowerCase().includes(name);
+        const typeOk = !type || d.type.toLowerCase() === type;
+        return codeOk && nameOk && typeOk;
+      });
+
+      selectedCodes = new Set(visibleDebtors.map(d => d.code));
+      document.getElementById('debtorListSection').style.display = 'block';
+      document.getElementById('debtorSummarySection').style.display = 'block';
+      renderDebtors();
+      toast(visibleDebtors.length + ' debtor(s) loaded');
+    }
+
+    function resetFilters() {
+      document.getElementById('filterCode').value = '';
+      document.getElementById('filterName').value = '';
+      document.getElementById('filterType').value = '';
+      visibleDebtors = [...allDebtors];
+      selectedCodes = new Set(visibleDebtors.map(d => d.code));
+      document.getElementById('debtorListSection').style.display = 'none';
+      document.getElementById('debtorSummarySection').style.display = 'none';
+      renderDebtors();
+      toast('Filters reset');
+    }
+
+    function updateSummary() {
+      const eligible = document.getElementById('eligibleDebtors');
+      if (!eligible) return;
+
+      const selected = visibleDebtors.filter(d => selectedCodes.has(d.code));
+      const chargeTotal = chargeItems.reduce((s, c) => s + c.amount, 0);
+      eligible.textContent = visibleDebtors.length;
+      document.getElementById('selectedDebtors').textContent = selected.length;
+      document.getElementById('totalInvoiceAmount').textContent = 'MYR ' + money(selected.length * chargeTotal);
+    }
+
+    function renderCharges() {
+      const tbody = document.getElementById('chargeRows');
+      const totalBox = document.getElementById('chargeTotals');
+      if (!tbody || !totalBox) return;
+
+      if (!chargeItems.length) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty">No charge item selected. Click + to add charges.</td></tr>';
+        totalBox.style.display = 'none';
+        updateSummary();
+        return;
+      }
+
+      tbody.innerHTML = chargeItems.map((c, i) => `
+        <tr>
+          <td>${i + 1}</td>
+          <td><strong>${c.name}</strong><br><span style="color:#777;">${c.description || '-'}</span></td>
+          <td class="amount"><strong>${money(c.amount)}</strong></td>
+          <td><button class="icon-btn" onclick="editCharge(${i})">✎</button></td>
+        </tr>
+      `).join('');
+
+      const total = chargeItems.reduce((s, c) => s + c.amount, 0);
+      const gross = total / 1.18;
+      const sst = gross * 0.08;
+      const sc = gross * 0.10;
+      const sub = total;
+
+      document.getElementById('subTotal').textContent = money(sub);
+      document.getElementById('sstTotal').textContent = money(sst);
+      document.getElementById('scTotal').textContent = money(sc);
+      document.getElementById('netTotal').textContent = money(total);
+      totalBox.style.display = 'flex';
+      updateSummary();
+    }
+
+    function openChargeModal() {
+      editingIndex = null;
+      document.getElementById('chargeName').value = 'Monthly Rental Charges';
+      document.getElementById('chargeRef').value = '';
+      document.getElementById('chargeQty').value = '1';
+      document.getElementById('chargePrice').value = '1.00';
+      document.getElementById('chargeDesc').value = '';
+      updateModalTotals();
+      document.getElementById('chargeModalBg').classList.add('show');
+    }
+
+    function closeChargeModal() {
+      document.getElementById('chargeModalBg').classList.remove('show');
+    }
+
+    function editCharge(i) {
+      const c = chargeItems[i];
+      editingIndex = i;
+      document.getElementById('chargeName').value = c.name;
+      document.getElementById('chargeRef').value = c.reference || '';
+      document.getElementById('chargeQty').value = c.qty;
+      document.getElementById('chargePrice').value = c.price.toFixed(2);
+      document.getElementById('chargeDesc').value = c.description || '';
+      updateModalTotals();
+      document.getElementById('chargeModalBg').classList.add('show');
+    }
+
+    function updateModalTotals() {
+      const qty = parseFloat(document.getElementById('chargeQty').value) || 0;
+      const price = parseFloat(document.getElementById('chargePrice').value) || 0;
+      const discount = 0;
+      const net = Math.max(qty * price - discount, 0);
+      const gross = net / 1.18;
+      const sst = gross * 0.08;
+      const sc = gross * 0.10;
+
+      document.getElementById('modalGross').textContent = money(gross);
+      document.getElementById('modalSst').textContent = money(sst);
+      document.getElementById('modalSc').textContent = money(sc);
+      document.getElementById('modalNet').textContent = money(net);
+    }
+
+
+    function resetChargeFormForNew() {
+      const name = document.getElementById('chargeName');
+      const ref = document.getElementById('chargeRef');
+      const desc = document.getElementById('chargeDesc');
+      const qty = document.getElementById('chargeQty');
+      const price = document.getElementById('chargePrice');
+
+      if (name) name.selectedIndex = 0;
+      if (ref) ref.value = '';
+      if (desc) desc.value = '';
+      if (qty) qty.value = '1';
+      if (price) price.value = '1.00';
+
+      if (typeof updateModalTotals === 'function') {
+        updateModalTotals();
+      }
+    }
+
+    function saveChargeAndNew() {
+      saveCharge(true);
+      resetChargeFormForNew();
+      document.getElementById('chargeModalBg').classList.add('show');
+      toast('Charge item saved. Please choose another item.');
+    }
+
+    function saveCharge(keepOpen = false) {
+      const obj = {
+        name: document.getElementById('chargeName').value,
+        reference: document.getElementById('chargeRef').value,
+        qty: parseFloat(document.getElementById('chargeQty').value) || 1,
+        price: parseFloat(document.getElementById('chargePrice').value) || 0,
+        discount: 0,
+        description: document.getElementById('chargeDesc').value
+      };
+      obj.amount = Math.max(obj.qty * obj.price - obj.discount, 0);
+
+      if (editingIndex === null) chargeItems.push(obj);
+      else chargeItems[editingIndex] = obj;
+
+      renderCharges();
+      closeChargeModal();
+      toast('Charge item saved');
+    }
+
+
+
+    function formatDateForDisplay(value) {
+      if (!value) return '';
+      const parts = value.split('-');
+      if (parts.length !== 3) return value;
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    function openBillingDatePicker() {
+      const picker = document.getElementById('billingDatePicker');
+      if (!picker) return;
+      if (typeof picker.showPicker === 'function') picker.showPicker();
+      else { picker.focus(); picker.click(); }
+    }
+
+    function syncBillingDate(value) {
+      const display = document.getElementById('billingDate');
+      if (display) display.value = formatDateForDisplay(value);
+    }
+
+    function getDebtorChargeAmount(debtor, charge) {
+      return charge ? charge.amount : 0;
+    }
+
+    function getDebtorChargeTotal(debtor) {
+      return chargeItems.reduce((sum, c) => sum + getDebtorChargeAmount(debtor, c), 0);
+    }
+
+    function openBulkUpdateModal() {
+      if (!previewSelectedDebtors.length) {
+        toast('Please click Details first to load debtor details.');
+        return;
+      }
+      if (!chargeItems.length) {
+        toast('Please add charge item first.');
+        return;
+      }
+      const box = document.getElementById('bulkChargeOptions');
+      box.innerHTML = chargeItems.map((c, i) => `
+        <label>
+          <input type="checkbox" class="bulk-charge-check" value="${i}" checked>
+          ${c.name}
+        </label>
+      `).join('');
+      document.getElementById('bulkPreviewBox').classList.remove('show');
+      document.getElementById('bulkPreviewBody').innerHTML = '';
+
+      // Close Details popup before opening Bulk Update to avoid nested modal click blocking.
+      const detailsModal = document.getElementById('detailsModalBg');
+      if (detailsModal) detailsModal.classList.remove('show');
+
+      document.getElementById('bulkUpdateModalBg').classList.add('show');
+      bindBulkConfirmButton();
+    }
+
+
+    let bulkUpdateProcessing = false;
+
+    function showBulkSuccessModal() {
+      const success = document.getElementById('bulkSuccessModalBg');
+      if (success) success.classList.add('show');
+    }
+
+    function closeBulkSuccessModal() {
+      const success = document.getElementById('bulkSuccessModalBg');
+      if (success) success.classList.remove('show');
+
+      const details = document.getElementById('detailsModalBg');
+      if (details) details.classList.add('show');
+    }
+
+    function performBulkUpdateNow() {
+      if (bulkUpdateProcessing) return;
+      bulkUpdateProcessing = true;
+
+      try {
+        const selectedChargeIndexes = Array.from(document.querySelectorAll('.bulk-charge-check:checked'))
+          .map(x => Number(x.value))
+          .filter(x => !Number.isNaN(x));
+
+        if (!selectedChargeIndexes.length) {
+          toast('Please select at least one incidental charge.');
+          bulkUpdateProcessing = false;
+          return;
+        }
+
+        const method = document.getElementById('bulkUpdateMethod')?.value || 'replace';
+        const rawValue = (document.getElementById('bulkUpdateValue')?.value || '0').replace(/,/g, '');
+        const value = parseFloat(rawValue);
+
+        if (Number.isNaN(value)) {
+          toast('Please enter a valid rate/value.');
+          bulkUpdateProcessing = false;
+          return;
+        }
+
+        function calc(currentAmount) {
+          if (method === 'replace') return value;
+          if (method === 'increaseAmount') return currentAmount + value;
+          if (method === 'decreaseAmount') return Math.max(0, currentAmount - value);
+          if (method === 'increasePercent') return currentAmount + (currentAmount * value / 100);
+          if (method === 'decreasePercent') return Math.max(0, currentAmount - (currentAmount * value / 100));
+          return currentAmount;
+        }
+
+        // Update selected charge item rates.
+        selectedChargeIndexes.forEach(i => {
+          if (!chargeItems[i]) return;
+          chargeItems[i].amount = Number(calc(Number(chargeItems[i].amount || 0)).toFixed(2));
+        });
+
+        // Refresh all affected sections.
+        if (typeof renderChargeItems === 'function') renderChargeItems();
+        if (typeof renderDebtors === 'function') renderDebtors();
+        if (typeof renderPreviewDetails === 'function') renderPreviewDetails();
+
+        if (typeof generatedInvoices !== 'undefined' && generatedInvoices.length && typeof renderGeneratedInvoices === 'function') {
+          const newTotal = chargeItems.reduce((sum, c) => sum + Number(c.amount || 0), 0);
+          generatedInvoices = generatedInvoices.map(g => ({
+            ...g,
+            amount: newTotal,
+            charges: chargeItems.map(c => c.name).join(', ')
+          }));
+          renderGeneratedInvoices();
+        }
+
+        // Hide only the bulk popup.
+        const bulk = document.getElementById('bulkUpdateModalBg');
+        if (bulk) bulk.classList.remove('show');
+
+        // Make sure Details page stays visible with updated amount.
+        const details = document.getElementById('detailsModalBg');
+        if (details) details.classList.add('show');
+
+        showBulkSuccessModal();
+      } catch (err) {
+        console.error(err);
+        toast('Unable to update rate. Please try again.');
+      } finally {
+        setTimeout(() => { bulkUpdateProcessing = false; }, 400);
+      }
+    }
+
+
+    function closeBulkUpdateModal() {
+      document.getElementById('bulkUpdateModalBg').classList.remove('show');
+    }
+
+    function getBulkSelectedChargeIndexes() {
+      return Array.from(document.querySelectorAll('.bulk-charge-check:checked')).map(x => Number(x.value));
+    }
+
+    function getBulkTargetDebtors() {
+      const applyTo = document.querySelector('input[name="bulkApplyTo"]:checked')?.value || 'all';
+      const debtorType = document.getElementById('bulkDebtorType')?.value || '';
+      return applyTo === 'type' ? previewSelectedDebtors.filter(d => d.type === debtorType) : previewSelectedDebtors;
+    }
+
+    function calculateBulkNewRate(currentAmount) {
+      const method = document.getElementById('bulkUpdateMethod')?.value || 'replace';
+      const value = parseFloat((document.getElementById('bulkUpdateValue')?.value || '0').replace(/,/g, ''));
+      if (Number.isNaN(value)) return currentAmount;
+      if (method === 'replace') return value;
+      if (method === 'increaseAmount') return currentAmount + value;
+      if (method === 'decreaseAmount') return Math.max(0, currentAmount - value);
+      if (method === 'increasePercent') return currentAmount + (currentAmount * value / 100);
+      if (method === 'decreasePercent') return Math.max(0, currentAmount - (currentAmount * value / 100));
+      return currentAmount;
+    }
+
+    function previewBulkUpdate() {
+      const targetDebtors = getBulkTargetDebtors();
+      const selectedChargeIndexes = getBulkSelectedChargeIndexes();
+      if (!targetDebtors.length) { toast('No debtor matched for this update.'); return; }
+      if (!selectedChargeIndexes.length) { toast('Please select at least one incidental charge.'); return; }
+
+      document.getElementById('bulkPreviewBody').innerHTML = targetDebtors.flatMap(d =>
+        selectedChargeIndexes.map(i => {
+          const c = chargeItems[i];
+          return `
+            <tr>
+              <td>${d.code}</td>
+              <td>${d.name}</td>
+              <td>${d.type}</td>
+              <td>${c.name}</td>
+              <td class="amount">${money(c.amount)}</td>
+              <td class="amount">${money(calculateBulkNewRate(c.amount))}</td>
+            </tr>
+          `;
+        })
+      ).join('');
+      document.getElementById('bulkPreviewBox').classList.add('show');
+    }
+
+    function confirmBulkUpdate() {
+      const selectedChargeIndexes = getBulkSelectedChargeIndexes();
+      if (!selectedChargeIndexes.length) { toast('Please select at least one incidental charge.'); return; }
+
+      selectedChargeIndexes.forEach(i => {
+        if (!chargeItems[i]) return;
+        chargeItems[i].amount = Number(calculateBulkNewRate(chargeItems[i].amount).toFixed(2));
+      });
+
+      renderChargeItems();
+      renderDebtors();
+      renderPreviewDetails();
+
+      if (typeof generatedInvoices !== 'undefined' && generatedInvoices.length) {
+        generatedInvoices = generatedInvoices.map(g => ({
+          ...g,
+          amount: chargeItems.reduce((sum, c) => sum + c.amount, 0),
+          charges: chargeItems.map(c => c.name).join(', ')
+        }));
+        renderGeneratedInvoices();
+      }
+
+      closeBulkUpdateModal();
+
+      // Reopen Details popup after update so the user can immediately see the updated rates.
+      const detailsModal = document.getElementById('detailsModalBg');
+      if (detailsModal) detailsModal.classList.add('show');
+
+      toast('Bulk rate updated successfully.');
+    }
+
+
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('#bulkUpdateModalBg .bulk-foot .orange-btn');
+      if (btn && btn.textContent.trim() === 'Confirm Update') {
+        e.preventDefault();
+        e.stopPropagation();
+        confirmBulkUpdate();
+      }
+    }, true);
+
+
+    document.addEventListener('change', function(e) {
+      if (e.target && e.target.name === 'bulkApplyTo') {
+        const select = document.getElementById('bulkDebtorType');
+        if (select) select.disabled = e.target.value !== 'type';
+      }
+    });
+
+
+    function toggleDetailsAdvancedFilter() {
+      openAdvancedChargeModal();
+    }
+
+    function openAdvancedChargeModal() {
+      const modal = document.getElementById('advancedChargeModalBg');
+      if (modal) modal.classList.add('show');
+    }
+
+    function closeAdvancedChargeModal() {
+      const modal = document.getElementById('advancedChargeModalBg');
+      if (modal) modal.classList.remove('show');
+    }
+
+    function getDetailsSelectedChargeFilters() {
+      return Array.from(document.querySelectorAll('.details-filter-option:checked')).map(x => x.value.toLowerCase());
+    }
+
+    function selectAllDetailsAdvancedFilter() {
+      document.querySelectorAll('.details-filter-option').forEach(x => x.checked = true);
+    }
+
+    function clearDetailsAdvancedFilter() {
+      document.querySelectorAll('.details-filter-option').forEach(x => x.checked = false);
+    }
+
+    function applyAdvancedChargeFilter() {
+      renderPreviewDetails();
+      closeAdvancedChargeModal();
+    }
+
+    function previewRun() {
+      if (!chargeItems.length) {
+        toast('Please add charge item first');
+        return;
+      }
+
+      const selected = visibleDebtors.filter(d => selectedCodes.has(d.code));
+      if (!selected.length) {
+        toast('Please select at least one debtor');
+        return;
+      }
+
+      previewSelectedDebtors = selected;
+      const search = document.getElementById('detailsChargeSearch');
+      if (search) search.value = '';
+      closeAdvancedChargeModal();
+      document.querySelectorAll('.details-filter-option').forEach(x => x.checked = true);
+
+      renderPreviewDetails();
+      document.getElementById('previewModalBg').classList.add('show');
+    }
+
+    function renderPreviewDetails() {
+      const keyword = (document.getElementById('detailsChargeSearch')?.value || '').trim().toLowerCase();
+      const selectedFilters = getDetailsSelectedChargeFilters();
+
+      const rows = previewSelectedDebtors.map(d => {
+        const debtorSearchText = `${d.code} ${d.name} ${d.type}`.toLowerCase();
+        const debtorMatched = !keyword || debtorSearchText.includes(keyword);
+
+        const filteredItems = chargeItems.filter(c => {
+          const itemSearchText = `${c.name} ${c.description || ''} ${money(c.amount)}`.toLowerCase();
+          const itemMatched = !keyword || itemSearchText.includes(keyword);
+          const matchesAdvancedFilter = selectedFilters.length === 0 ? false : selectedFilters.includes(c.name.toLowerCase());
+
+          // If debtor code/name/type matches, show all selected charge items for that debtor.
+          // If item details match, show only the matching charge item.
+          return matchesAdvancedFilter && (debtorMatched || itemMatched);
+        });
+
+        if (!filteredItems.length) return '';
+
+        const itemRows = filteredItems.map((c, i) => `
+          <div class="detail-item">
+            <span class="detail-item-name">${i + 1}. ${c.name}</span>
+            <span class="detail-item-amount">${money(c.amount)}</span>
+          </div>
+        `).join('');
+
+        const debtorTotal = filteredItems.reduce((s, c) => s + c.amount, 0);
+
+        return `
+          <div class="detail-card" style="border:1px solid #e5e5e5;border-radius:6px;margin-bottom:14px;overflow:hidden;">
+            <div class="detail-head" style="background:#fbf1e6;padding:12px 14px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+              <div>
+                <strong>${d.code} - ${d.name}</strong>
+                <div class="detail-type" style="color:#666;font-size:13px;">${d.type}</div>
+              </div>
+              <strong>MYR ${money(debtorTotal)}</strong>
+            </div>
+            <div class="detail-items">
+              ${itemRows}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('previewBody').innerHTML = rows || '<div class="empty">No incidental charges found.</div>';
+    }
+
+    function closePreview() {
+      document.getElementById('previewModalBg').classList.remove('show');
+    }
+
+
+    function openGenerateConfirm() {
+      if (!chargeItems.length) {
+        toast('Please add charge item first');
+        return;
+      }
+
+      const selected = visibleDebtors.filter(d => selectedCodes.has(d.code));
+      if (!selected.length) {
+        toast('Please select at least one debtor');
+        return;
+      }
+
+      document.getElementById('generateConfirmBg').classList.add('show');
+    }
+
+    function closeGenerateConfirm() {
+      document.getElementById('generateConfirmBg').classList.remove('show');
+    }
+
+    function confirmGenerateStandingCharges() {
+      closeGenerateConfirm();
+      generateInvoices();
+    }
+
+    function generateInvoices() {
+      if (!chargeItems.length) {
+        toast('Please add charge item first');
+        return;
+      }
+      const selected = visibleDebtors.filter(d => selectedCodes.has(d.code));
+      if (!selected.length) {
+        toast('Please select at least one debtor');
+        return;
+      }
+
+      const billingDate = document.getElementById('billingDate').value;
+      const amount = chargeItems.reduce((s, c) => s + c.amount, 0);
+      const charges = chargeItems.map(c => c.name).join(', ');
+      currentBatchNo += 1;
+
+      selected.forEach(d => {
+        generatedInvoices.push({
+          invoiceNo: 'ARINV' + String(generatedInvoices.length + 1).padStart(5, '0'),
+          batchNo: currentBatchNo,
+          code: d.code,
+          name: d.name,
+          type: d.type,
+          invoiceDate: billingDate,
+          charges: charges,
+          amount: amount
+        });
+      });
+
+      selectedGeneratedInvoices = new Set(generatedInvoices.map(g => g.invoiceNo));
+      renderGenerated();
+      closePreview();
+      toast('Standing Charges generated');
+    }
+
+    function renderGenerated() {
+      const tbody = document.getElementById('generatedRows');
+      if (!tbody) return;
+
+      if (!generatedInvoices.length) {
+        tbody.innerHTML = '<tr><td colspan="9" class="empty">No generated Standing Charges yet.</td></tr>';
+        updateGeneratedCheckAll();
+        return;
+      }
+
+      tbody.innerHTML = generatedInvoices.map(g => `
+        <tr>
+          <td><span class="checkbox ${selectedGeneratedInvoices.has(g.invoiceNo) ? 'checked' : ''}" onclick="toggleGenerated('${g.invoiceNo}')">${selectedGeneratedInvoices.has(g.invoiceNo) ? '✓' : ''}</span></td>
+          <td>${g.invoiceNo}</td>
+          <td>${g.code}</td>
+          <td>${g.name}</td>
+          <td>${g.type}</td>
+          <td>${g.charges}</td>
+          <td class="amount">${money(g.amount)}</td>
+          <td><span class="status">Generated</span></td>
+          <td style="text-align:center;">${g.batchNo || 1}</td>
+        </tr>
+      `).join('');
+
+      updateGeneratedCheckAll();
+    }
+
+    function toggleGenerated(invoiceNo) {
+      if (selectedGeneratedInvoices.has(invoiceNo)) selectedGeneratedInvoices.delete(invoiceNo);
+      else selectedGeneratedInvoices.add(invoiceNo);
+      renderGenerated();
+    }
+
+    function toggleAllGenerated() {
+      if (!generatedInvoices.length) return;
+      const allSelected = generatedInvoices.every(g => selectedGeneratedInvoices.has(g.invoiceNo));
+      if (allSelected) selectedGeneratedInvoices.clear();
+      else selectedGeneratedInvoices = new Set(generatedInvoices.map(g => g.invoiceNo));
+      renderGenerated();
+    }
+
+    function updateGeneratedCheckAll() {
+      const check = document.getElementById('generatedCheckAll');
+      if (!check) return;
+      const allSelected = generatedInvoices.length && generatedInvoices.every(g => selectedGeneratedInvoices.has(g.invoiceNo));
+      check.className = 'checkbox ' + (allSelected ? 'checked' : '');
+      check.textContent = allSelected ? '✓' : '';
+    }
+
+    function getSelectedGeneratedInvoices() {
+      return generatedInvoices.filter(g => selectedGeneratedInvoices.has(g.invoiceNo));
+    }
+
+    function shareSelectedGenerated() {
+      const selected = getSelectedGeneratedInvoices();
+      if (!selected.length) {
+        toast('Please select at least one generated Standing Charge');
+        return;
+      }
+      document.getElementById('shareModalBg').classList.add('show');
+    }
+
+    function closeShareModal() {
+      document.getElementById('shareModalBg').classList.remove('show');
+    }
+
+    function getShareText() {
+      const selected = getSelectedGeneratedInvoices();
+      const lines = selected.map(g => `${g.invoiceNo} | ${g.code} | ${g.name} | MYR ${money(g.amount)}`).join('\n');
+      return `Generated Standing Charges\n\n${lines}`;
+    }
+
+    function shareVia(type) {
+      const text = getShareText();
+      const encoded = encodeURIComponent(text);
+
+      if (type === 'whatsapp') {
+        window.open('https://wa.me/?text=' + encoded, '_blank');
+      } else if (type === 'facebook') {
+        window.open('https://www.facebook.com/sharer/sharer.php?quote=' + encoded, '_blank');
+      } else if (type === 'telegram') {
+        window.open('https://t.me/share/url?text=' + encoded, '_blank');
+      } else if (type === 'twitter') {
+        window.open('https://twitter.com/intent/tweet?text=' + encoded, '_blank');
+      } else if (type === 'email') {
+        window.location.href = 'mailto:?subject=Generated Standing Charges&body=' + encoded;
+      }
+
+      closeShareModal();
+    }
+
+    function printSelectedGenerated() {
+      const selected = getSelectedGeneratedInvoices();
+      if (!selected.length) {
+        toast('Please select at least one generated Standing Charge');
+        return;
+      }
+
+      const rows = selected.map(inv => `
+        <tr>
+          <td style="padding:8px;border-bottom:1px solid #ddd;">${inv.invoiceNo}</td>
+          <td style="padding:8px;border-bottom:1px solid #ddd;">${inv.code}</td>
+          <td style="padding:8px;border-bottom:1px solid #ddd;">${inv.name}</td>
+          <td style="padding:8px;border-bottom:1px solid #ddd;">${inv.type}</td>
+          <td style="padding:8px;border-bottom:1px solid #ddd;">${inv.charges}</td>
+          <td style="padding:8px;border-bottom:1px solid #ddd;text-align:right;">${money(inv.amount)}</td>
+        </tr>
+      `).join('');
+
+      const total = selected.reduce((sum, inv) => sum + inv.amount, 0);
+
+      const printContent = `
+        <div style="font-family:Arial,sans-serif;padding:30px;color:#222;">
+          <h2 style="margin:0 0 5px;">HOTEL PARADISE</h2>
+          <div style="color:#666;margin-bottom:25px;">Generated Standing Charges</div>
+          <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+            <thead>
+              <tr>
+                <th style="padding:8px;border-bottom:2px solid #333;text-align:left;">Invoice No.</th>
+                <th style="padding:8px;border-bottom:2px solid #333;text-align:left;">Debtor Code</th>
+                <th style="padding:8px;border-bottom:2px solid #333;text-align:left;">Debtor Name</th>
+                <th style="padding:8px;border-bottom:2px solid #333;text-align:left;">Debtor Type</th>
+                <th style="padding:8px;border-bottom:2px solid #333;text-align:left;">Charges</th>
+                <th style="padding:8px;border-bottom:2px solid #333;text-align:right;">Amount (MYR)</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <div style="text-align:right;font-size:20px;font-weight:bold;margin-top:25px;">Total: MYR ${money(total)}</div>
+        </div>
+      `;
+
+      const w = window.open('', '_blank');
+      w.document.write('<html><head><title>Generated Standing Charges</title></head><body>' + printContent + '</body></html>');
+      w.document.close();
+      w.focus();
+      w.print();
+    }
+
+
+    function printInvoice(invoiceNo) {
+      const inv = generatedInvoices.find(x => x.invoiceNo === invoiceNo);
+      if (!inv) {
+        toast('Invoice not found');
+        return;
+      }
+
+      const printContent = `
+        <div style="font-family:Arial,sans-serif;padding:30px;color:#222;">
+          <h2 style="margin:0 0 5px;">HOTEL PARADISE</h2>
+          <div style="color:#666;margin-bottom:25px;">Monthly Invoice</div>
+          <hr>
+          <table style="width:100%;border-collapse:collapse;margin-top:20px;">
+            <tr><td style="padding:8px;font-weight:bold;">Invoice No.</td><td style="padding:8px;">${inv.invoiceNo}</td></tr>
+            <tr><td style="padding:8px;font-weight:bold;">Batch No.</td><td style="padding:8px;">${inv.batchNo || 1}</td></tr>
+            <tr><td style="padding:8px;font-weight:bold;">Debtor Code</td><td style="padding:8px;">${inv.code}</td></tr>
+            <tr><td style="padding:8px;font-weight:bold;">Debtor Name</td><td style="padding:8px;">${inv.name}</td></tr>
+            <tr><td style="padding:8px;font-weight:bold;">Debtor Type</td><td style="padding:8px;">${inv.type}</td></tr>
+            <tr><td style="padding:8px;font-weight:bold;">Invoice Date</td><td style="padding:8px;">${inv.invoiceDate}</td></tr>
+            <tr><td style="padding:8px;font-weight:bold;">Charges</td><td style="padding:8px;">${inv.charges}</td></tr>
+            <tr><td style="padding:8px;font-weight:bold;">Amount (MYR)</td><td style="padding:8px;">${money(inv.amount)}</td></tr>
+          </table>
+          <hr style="margin-top:25px;">
+          <div style="text-align:right;font-size:20px;font-weight:bold;">Total: MYR ${money(inv.amount)}</div>
+        </div>
+      `;
+
+      const w = window.open('', '_blank');
+      w.document.write('<html><head><title>' + inv.invoiceNo + '</title></head><body>' + printContent + '</body></html>');
+      w.document.close();
+      w.focus();
+      w.print();
+    }
+
+
+    function toggleStandingChargeDropdown() {
+      const selectBox = document.getElementById('debtorStandingChargeSelect');
+      if (selectBox && selectBox.classList.contains('standing-charge-disabled')) return;
+      const panel = document.getElementById('standingChargePanel');
+      if (panel) panel.classList.toggle('show');
+    }
+
+    function getSelectedStandingCharges() {
+      return Array.from(document.querySelectorAll('.standing-charge-option:checked')).map(x => x.value);
+    }
+
+    function toggleAllStandingCharges(checked) {
+      document.querySelectorAll('.standing-charge-option').forEach(x => x.checked = checked);
+      updateStandingChargeText();
+    }
+
+    function updateStandingChargeText() {
+      const options = Array.from(document.querySelectorAll('.standing-charge-option'));
+      const selected = options.filter(x => x.checked);
+      const selectAll = document.getElementById('standingSelectAll');
+      const text = document.getElementById('standingChargeSelectedText');
+
+      if (selectAll) selectAll.checked = selected.length === options.length;
+
+      if (text) {
+        if (selected.length === 0) {
+          text.textContent = 'Select Standing Charges';
+        } else if (selected.length === options.length) {
+          text.textContent = 'All Standing Charges';
+        } else {
+          text.textContent = selected.map(x => x.value).join(', ');
+        }
+      }
+    }
+
+    function toggleDebtorStandingCharges() {
+      const toggle = document.getElementById('debtorStandingToggle');
+      const selectBox = document.getElementById('debtorStandingChargeSelect');
+      const panel = document.getElementById('standingChargePanel');
+      if (!toggle || !selectBox) return;
+
+      const isOn = toggle.classList.contains('checked');
+      if (isOn) {
+        toggle.classList.remove('checked');
+        toggle.textContent = '';
+        selectBox.classList.add('standing-charge-disabled');
+        if (panel) panel.classList.remove('show');
+      } else {
+        toggle.classList.add('checked');
+        toggle.textContent = '✓';
+        selectBox.classList.remove('standing-charge-disabled');
+      }
+    }
+
+    document.addEventListener('click', function(e) {
+      const selectBox = document.getElementById('debtorStandingChargeSelect');
+      const panel = document.getElementById('standingChargePanel');
+      if (selectBox && panel && !selectBox.contains(e.target)) {
+        panel.classList.remove('show');
+      }
+    });
+
+    document.getElementById('chargeQty').addEventListener('input', updateModalTotals);
+    document.getElementById('chargePrice').addEventListener('input', updateModalTotals);
+
+
+
+    function toggleMobileMenu() {
+      if (window.innerWidth > 980) return;
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.getElementById('mobileOverlay');
+      if (!sidebar || !overlay) return;
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('show');
+    }
+
+    function closeMobileMenu() {
+      const sidebar = document.querySelector('.sidebar');
+      const overlay = document.getElementById('mobileOverlay');
+      if (sidebar) sidebar.classList.remove('open');
+      if (overlay) overlay.classList.remove('show');
+    }
+
+    const hamburgerBtn = document.querySelector('.hamburger');
+    if (hamburgerBtn) {
+      hamburgerBtn.addEventListener('click', toggleMobileMenu);
+    }
+
+    document.querySelectorAll('.sidebar .nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        if (window.innerWidth <= 980) closeMobileMenu();
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 980) closeMobileMenu();
+    });
+
+    renderDepartments();
+    renderIncidentalCharges();
+    renderDebtors();
+    renderCharges();
+    renderGenerated();
+    updateStandingChargeText();
+  
+    function bindBulkConfirmButton() {
+      const btn = document.getElementById('bulkConfirmUpdateBtn');
+      if (!btn || btn.dataset.bound === '1') return;
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        confirmBulkUpdate();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', bindBulkConfirmButton);
+    document.addEventListener('click', function(e) {
+      if (e.target && e.target.id === 'bulkConfirmUpdateBtn') {
+        e.preventDefault();
+        e.stopPropagation();
+        confirmBulkUpdate();
+      }
+    }, true);
+
+  </script>
+</body>
+</html>
