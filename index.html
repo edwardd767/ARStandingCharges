@@ -974,6 +974,73 @@
       text-align: right;
       min-width: 60px;
     }
+
+    /* Edit button inside Details popup only */
+    #previewModalBg .detail-item-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    #previewModalBg .detail-edit-btn {
+      width: 26px;
+      height: 26px;
+      border: none;
+      border-radius: 4px;
+      background: #ff9800;
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      line-height: 1;
+    }
+    #previewModalBg .detail-edit-btn:hover {
+      background: #e96500;
+    }
+
+    /* Simple rate edit popup from Details only */
+    .detail-rate-modal {
+      width: 420px;
+      max-width: 100%;
+      background: #fff;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 12px 36px rgba(0,0,0,.25);
+    }
+    .detail-rate-head {
+      background: #fbf1e6;
+      color: #ff6f00;
+      font-weight: 700;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .detail-rate-body {
+      padding: 18px;
+    }
+    .detail-rate-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 18px 18px;
+    }
+    #detailRateEditModalBg.modal-bg.show {
+      z-index: 1000002 !important;
+    }
+    #detailRateEditModalBg .detail-rate-modal {
+      position: relative;
+      z-index: 1000003 !important;
+    }
+    @media (max-width:980px) {
+      .detail-rate-foot { flex-direction: column; }
+      .detail-rate-foot .ghost-btn,
+      .detail-rate-foot .orange-btn { width: 100%; }
+    }
+
     @media (max-width:980px) {
       #previewModalBg .modal {
         width: 100%;
@@ -2101,6 +2168,41 @@
 
 
 
+
+
+  <!-- Simple Details Amount Edit Modal -->
+  <div id="detailRateEditModalBg" class="modal-bg">
+    <div class="detail-rate-modal">
+      <div class="detail-rate-head">
+        <span>Edit Amount</span>
+        <button type="button" class="ghost-btn" style="width:44px;height:36px;padding:0;" onclick="closeDetailRateEdit()">✕</button>
+      </div>
+      <div class="detail-rate-body">
+        <input type="hidden" id="detailRateEditIndex">
+        <input type="hidden" id="detailRateEditDebtorCode">
+        <div class="field">
+          <label>Debtor</label>
+          <input id="detailRateEditDebtor" class="input" disabled>
+        </div>
+        <div style="height:16px;"></div>
+        <div class="field">
+          <label>Incidental Charge</label>
+          <input id="detailRateEditName" class="input" disabled>
+        </div>
+        <div style="height:16px;"></div>
+        <div class="field">
+          <label>Amount (MYR) *</label>
+          <input id="detailRateEditAmount" class="input" inputmode="decimal" placeholder="0.00" onkeydown="if(event.key==='Enter'){saveDetailRateEdit();}">
+        </div>
+      </div>
+      <div class="detail-rate-foot">
+        <button type="button" class="ghost-btn" onclick="closeDetailRateEdit()">Cancel</button>
+        <button type="button" class="orange-btn" onclick="saveDetailRateEdit()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+
   <!-- Generate Confirmation Modal -->
   <div id="generateConfirmBg" class="modal-bg">
     <div class="confirm-modal">
@@ -2286,6 +2388,7 @@
     let currentBatchNo = 0;
     let editingIndex = null;
     let previewSelectedDebtors = [];
+    let debtorChargeAmounts = {}; // Individual debtor amount overrides from Details popup only
 
     function showScreen(id) {
       const screen = document.getElementById(id);
@@ -2363,7 +2466,7 @@
             <td>${d.code}</td>
             <td>${d.name}</td>
             <td>${d.type}</td>
-            <td class="amount">${money(chargeItems.reduce((s, c) => s + c.amount, 0))}</td>
+            <td class="amount">${money(getDebtorChargeTotal(d))}</td>
           </tr>
         `).join('');
       }
@@ -2427,10 +2530,10 @@
       if (!eligible) return;
 
       const selected = visibleDebtors.filter(d => selectedCodes.has(d.code));
-      const chargeTotal = chargeItems.reduce((s, c) => s + c.amount, 0);
+      const totalAmount = selected.reduce((sum, d) => sum + getDebtorChargeTotal(d), 0);
       eligible.textContent = visibleDebtors.length;
       document.getElementById('selectedDebtors').textContent = selected.length;
-      document.getElementById('totalInvoiceAmount').textContent = 'MYR ' + money(selected.length * chargeTotal);
+      document.getElementById('totalInvoiceAmount').textContent = 'MYR ' + money(totalAmount);
     }
 
     function renderCharges() {
@@ -2597,12 +2700,15 @@
       if (display) display.value = formatDateForDisplay(value);
     }
 
-    function getDebtorChargeAmount(debtor, charge) {
-      return charge ? charge.amount : 0;
+    function getDebtorChargeAmount(debtor, charge, chargeIndex) {
+      if (!debtor || !charge) return 0;
+      const debtorOverrides = debtorChargeAmounts[debtor.code] || {};
+      const overrideAmount = debtorOverrides[chargeIndex];
+      return overrideAmount !== undefined ? Number(overrideAmount) : Number(charge.amount || 0);
     }
 
     function getDebtorChargeTotal(debtor) {
-      return chargeItems.reduce((sum, c) => sum + getDebtorChargeAmount(debtor, c), 0);
+      return chargeItems.reduce((sum, c, index) => sum + getDebtorChargeAmount(debtor, c, index), 0);
     }
 
     function openBulkUpdateModal() {
@@ -2882,22 +2988,29 @@
         const debtorSearchText = `${d.code} ${d.name} ${d.type}`.toLowerCase();
         const debtorMatched = !keyword || debtorSearchText.includes(keyword);
 
-        const filteredItems = chargeItems.filter(c => {
-          const itemSearchText = `${c.name} ${c.description || ''} ${money(c.amount)}`.toLowerCase();
-          const itemMatched = !keyword || itemSearchText.includes(keyword);
-          const matchesAdvancedFilter = selectedFilters.length === 0 ? false : selectedFilters.includes(c.name.toLowerCase());
+        const filteredItems = chargeItems
+          .map((c, originalIndex) => ({ ...c, originalIndex, amount: getDebtorChargeAmount(d, c, originalIndex) }))
+          .filter(c => {
+            const itemSearchText = `${c.name} ${c.description || ''} ${money(c.amount)}`.toLowerCase();
+            const itemMatched = !keyword || itemSearchText.includes(keyword);
+            const matchesAdvancedFilter = selectedFilters.length === 0 ? false : selectedFilters.includes(c.name.toLowerCase());
 
-          // If debtor code/name/type matches, show all selected charge items for that debtor.
-          // If item details match, show only the matching charge item.
-          return matchesAdvancedFilter && (debtorMatched || itemMatched);
-        });
+            // If debtor code/name/type matches, show all selected charge items for that debtor.
+            // If item details match, show only the matching charge item.
+            return matchesAdvancedFilter && (debtorMatched || itemMatched);
+          });
 
         if (!filteredItems.length) return '';
 
         const itemRows = filteredItems.map((c, i) => `
           <div class="detail-item">
             <span class="detail-item-name">${i + 1}. ${c.name}</span>
-            <span class="detail-item-amount">${money(c.amount)}</span>
+            <span class="detail-item-actions">
+              <span class="detail-item-amount">${money(c.amount)}</span>
+              <button type="button" class="detail-edit-btn" title="Edit rate" onclick="openDetailChargeEdit('${d.code}', ${c.originalIndex})">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+            </span>
           </div>
         `).join('');
 
@@ -2924,6 +3037,62 @@
 
     function closePreview() {
       document.getElementById('previewModalBg').classList.remove('show');
+    }
+
+    function openDetailChargeEdit(debtorCode, index) {
+      const charge = chargeItems[index];
+      const debtor = allDebtors.find(d => d.code === debtorCode) || visibleDebtors.find(d => d.code === debtorCode);
+      if (!charge || !debtor) {
+        toast('Charge item not found');
+        return;
+      }
+
+      const indexInput = document.getElementById('detailRateEditIndex');
+      const debtorCodeInput = document.getElementById('detailRateEditDebtorCode');
+      const debtorInput = document.getElementById('detailRateEditDebtor');
+      const nameInput = document.getElementById('detailRateEditName');
+      const amountInput = document.getElementById('detailRateEditAmount');
+
+      if (indexInput) indexInput.value = index;
+      if (debtorCodeInput) debtorCodeInput.value = debtorCode;
+      if (debtorInput) debtorInput.value = `${debtor.code} - ${debtor.name}`;
+      if (nameInput) nameInput.value = charge.name || '';
+      if (amountInput) {
+        amountInput.value = money(getDebtorChargeAmount(debtor, charge, index));
+        setTimeout(() => { amountInput.focus(); amountInput.select(); }, 50);
+      }
+
+      document.getElementById('detailRateEditModalBg').classList.add('show');
+    }
+
+    function closeDetailRateEdit() {
+      document.getElementById('detailRateEditModalBg').classList.remove('show');
+    }
+
+    function saveDetailRateEdit() {
+      const index = Number(document.getElementById('detailRateEditIndex')?.value);
+      const debtorCode = document.getElementById('detailRateEditDebtorCode')?.value;
+      const amountField = document.getElementById('detailRateEditAmount');
+      const amount = parseFloat((amountField?.value || '').replace(/,/g, ''));
+
+      if (Number.isNaN(index) || !chargeItems[index] || !debtorCode) {
+        toast('Charge item not found');
+        return;
+      }
+
+      if (Number.isNaN(amount) || amount < 0) {
+        toast('Please enter a valid amount');
+        if (amountField) amountField.focus();
+        return;
+      }
+
+      if (!debtorChargeAmounts[debtorCode]) debtorChargeAmounts[debtorCode] = {};
+      debtorChargeAmounts[debtorCode][index] = Number(amount.toFixed(2));
+
+      renderDebtors();
+      renderPreviewDetails();
+      closeDetailRateEdit();
+      toast('Amount updated for selected debtor only');
     }
 
 
@@ -2963,11 +3132,11 @@
       }
 
       const billingDate = document.getElementById('billingDate').value;
-      const amount = chargeItems.reduce((s, c) => s + c.amount, 0);
       const charges = chargeItems.map(c => c.name).join(', ');
       currentBatchNo += 1;
 
       selected.forEach(d => {
+        const amount = getDebtorChargeTotal(d);
         generatedInvoices.push({
           invoiceNo: 'ARINV' + String(generatedInvoices.length + 1).padStart(5, '0'),
           batchNo: currentBatchNo,
