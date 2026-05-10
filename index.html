@@ -2933,32 +2933,170 @@
       toast('Standing Charges generated');
     }
 
-    function renderGenerated() {
-      const tbody = document.getElementById('generatedRows');
-      if (!tbody) return;
+    // function renderGenerated() {
+    //   const tbody = document.getElementById('generatedRows');
+    //   if (!tbody) return;
 
-      if (!generatedInvoices.length) {
-        tbody.innerHTML = '<tr><td colspan="9" class="empty">No generated Standing Charges yet.</td></tr>';
-        updateGeneratedCheckAll();
-        return;
-      }
+    //   if (!generatedInvoices.length) {
+    //     tbody.innerHTML = '<tr><td colspan="9" class="empty">No generated Standing Charges yet.</td></tr>';
+    //     updateGeneratedCheckAll();
+    //     return;
+    //   }
 
-      tbody.innerHTML = generatedInvoices.map(g => `
-        <tr>
-          <td><span class="checkbox ${selectedGeneratedInvoices.has(g.invoiceNo) ? 'checked' : ''}" onclick="toggleGenerated('${g.invoiceNo}')">${selectedGeneratedInvoices.has(g.invoiceNo) ? '✓' : ''}</span></td>
-          <td>${g.invoiceNo}</td>
-          <td>${g.code}</td>
-          <td>${g.name}</td>
-          <td>${g.type}</td>
-          <td>${g.charges}</td>
-          <td class="amount">${money(g.amount)}</td>
-          <td><span class="status">Generated</span></td>
-          <td style="text-align:center;">${g.batchNo || 1}</td>
-        </tr>
-      `).join('');
+    //   tbody.innerHTML = generatedInvoices.map(g => `
+    //     <tr>
+    //       <td><span class="checkbox ${selectedGeneratedInvoices.has(g.invoiceNo) ? 'checked' : ''}" onclick="toggleGenerated('${g.invoiceNo}')">${selectedGeneratedInvoices.has(g.invoiceNo) ? '✓' : ''}</span></td>
+    //       <td>${g.invoiceNo}</td>
+    //       <td>${g.code}</td>
+    //       <td>${g.name}</td>
+    //       <td>${g.type}</td>
+    //       <td>${g.charges}</td>
+    //       <td class="amount">${money(g.amount)}</td>
+    //       <td><span class="status">Generated</span></td>
+    //       <td style="text-align:center;">${g.batchNo || 1}</td>
+    //     </tr>
+    //   `).join('');
 
-      updateGeneratedCheckAll();
+    //   updateGeneratedCheckAll();
+    // }
+
+    let generatedSortState = {
+  key: null,
+  direction: 'asc'
+};
+
+const generatedSortColumns = [
+  { index: 1, key: 'invoiceNo', label: 'Invoice No.' },
+  { index: 2, key: 'code', label: 'Debtor Code' },
+  { index: 3, key: 'name', label: 'Debtor Name' },
+  { index: 4, key: 'type', label: 'Debtor Type' },
+  { index: 5, key: 'charges', label: 'Charges' },
+  { index: 6, key: 'amount', label: 'Amount (MYR)' },
+  { index: 7, key: 'status', label: 'Status' },
+  { index: 8, key: 'batchNo', label: 'Batch No.' }
+];
+
+function setupGeneratedSorting() {
+  const table = document.querySelector('.generated-table');
+  if (!table) return;
+
+  const headers = table.querySelectorAll('thead th');
+
+  generatedSortColumns.forEach(col => {
+    const th = headers[col.index];
+    if (!th) return;
+
+    th.style.cursor = 'pointer';
+    th.style.userSelect = 'none';
+    th.style.whiteSpace = 'nowrap';
+
+    th.innerHTML = `
+      <span style="display:inline-flex;align-items:center;gap:6px;">
+        ${col.label}
+        <span id="sortIcon_${col.key}" style="font-size:12px;color:#999;">⇅</span>
+      </span>
+    `;
+
+    th.onclick = function () {
+      sortGeneratedTable(col.key);
+    };
+  });
+
+  updateGeneratedSortIcons();
+}
+
+function sortGeneratedTable(key) {
+  if (generatedSortState.key === key) {
+    generatedSortState.direction = generatedSortState.direction === 'asc' ? 'desc' : 'asc';
+  } else {
+    generatedSortState.key = key;
+    generatedSortState.direction = 'asc';
+  }
+
+  renderGenerated();
+}
+
+function updateGeneratedSortIcons() {
+  generatedSortColumns.forEach(col => {
+    const icon = document.getElementById('sortIcon_' + col.key);
+    if (!icon) return;
+
+    if (generatedSortState.key === col.key) {
+      icon.textContent = generatedSortState.direction === 'asc' ? '▲' : '▼';
+      icon.style.color = '#ff6f00';
+    } else {
+      icon.textContent = '⇅';
+      icon.style.color = '#999';
     }
+  });
+}
+
+function getGeneratedSortValue(row, key) {
+  if (key === 'amount') return Number(row.amount || 0);
+  if (key === 'batchNo') return Number(row.batchNo || 0);
+  if (key === 'status') return 'Generated';
+
+  return String(row[key] || '').toLowerCase();
+}
+
+function getSortedGeneratedInvoices() {
+  const rows = [...generatedInvoices];
+
+  if (!generatedSortState.key) return rows;
+
+  rows.sort((a, b) => {
+    const valueA = getGeneratedSortValue(a, generatedSortState.key);
+    const valueB = getGeneratedSortValue(b, generatedSortState.key);
+
+    if (typeof valueA === 'number' && typeof valueB === 'number') {
+      return generatedSortState.direction === 'asc'
+        ? valueA - valueB
+        : valueB - valueA;
+    }
+
+    return generatedSortState.direction === 'asc'
+      ? String(valueA).localeCompare(String(valueB), undefined, { numeric: true })
+      : String(valueB).localeCompare(String(valueA), undefined, { numeric: true });
+  });
+
+  return rows;
+}
+
+function renderGenerated() {
+  const tbody = document.getElementById('generatedRows');
+  if (!tbody) return;
+
+  if (!generatedInvoices.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty">No generated Standing Charges yet.</td></tr>';
+    updateGeneratedCheckAll();
+    updateGeneratedSortIcons();
+    return;
+  }
+
+  const sortedInvoices = getSortedGeneratedInvoices();
+
+  tbody.innerHTML = sortedInvoices.map(g => `
+    <tr>
+      <td>
+        <span class="checkbox ${selectedGeneratedInvoices.has(g.invoiceNo) ? 'checked' : ''}" 
+              onclick="toggleGenerated('${g.invoiceNo}')">
+          ${selectedGeneratedInvoices.has(g.invoiceNo) ? '✓' : ''}
+        </span>
+      </td>
+      <td>${g.invoiceNo}</td>
+      <td>${g.code}</td>
+      <td>${g.name}</td>
+      <td>${g.type}</td>
+      <td>${g.charges}</td>
+      <td class="amount">${money(g.amount)}</td>
+      <td><span class="status">Generated</span></td>
+      <td style="text-align:center;">${g.batchNo || 1}</td>
+    </tr>
+  `).join('');
+
+  updateGeneratedCheckAll();
+  updateGeneratedSortIcons();
+}
 
     function toggleGenerated(invoiceNo) {
       if (selectedGeneratedInvoices.has(invoiceNo)) selectedGeneratedInvoices.delete(invoiceNo);
@@ -3206,10 +3344,18 @@
       if (window.innerWidth > 980) closeMobileMenu();
     });
 
+    // renderDepartments();
+    // renderIncidentalCharges();
+    // renderDebtors();
+    // renderCharges();
+    // renderGenerated();
+    // updateStandingChargeText();
+
     renderDepartments();
     renderIncidentalCharges();
     renderDebtors();
     renderCharges();
+    setupGeneratedSorting();
     renderGenerated();
     updateStandingChargeText();
   
